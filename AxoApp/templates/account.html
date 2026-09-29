@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Profil · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 680px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zum Dashboard" %}
+    <p class="text-uppercase text-secondary mt-4 mb-1">Dein Axolovel-Konto</p>
+    <h1 class="display-5">Profil</h1>
+
+    {% if user.is_authenticated %}
+        <section class="card shadow-sm mt-4" style="background: var(--axolovel-card-pink);">
+            <div class="card-body p-4">
+                <p class="mb-1">Angemeldet als</p>
+                <h2 class="h3">{{ user.username }}</h2>
+                {% if user.email %}<p class="text-secondary">{{ user.email }}</p>{% endif %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-secondary mt-2" type="submit">Abmelden</button>
+                </form>
+            </div>
+        </section>
+    {% else %}
+        <p class="lead">Melde dich an oder erstelle ein Konto, damit deine Einträge mit deinem persönlichen Bereich verknüpft werden.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-primary" href="{% url 'login' %}">Anmelden</a>
+            <a class="btn btn-outline-secondary" href="{% url 'register' %}">Konto erstellen</a>
+        </div>
+    {% endif %}
+</main>
+{% endblock %}

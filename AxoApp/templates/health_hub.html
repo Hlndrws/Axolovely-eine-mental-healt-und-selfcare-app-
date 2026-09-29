@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Health Hub · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 760px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zum Dashboard" %}
+    <p class="text-secondary mt-4 mb-1">{{ health_day.date|date:"l, d.m.Y" }}</p>
+    <h1 class="display-5">Health Hub</h1>
+    <p class="lead mb-4">Kleine Bewegung zählt. Dein Schrittziel und dein Tag im Überblick.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success d-flex align-items-start justify-content-between gap-3" role="status">
+                <span>{{ message }}</span>
+                <button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="card shadow-sm mb-4" style="background: var(--axolovel-card-pink);" aria-labelledby="steps-title">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+                <div>
+                    <p class="text-uppercase text-secondary mb-1">Heute</p>
+                    <h2 class="h3 mb-0" id="steps-title">Schritte</h2>
+                </div>
+                <p class="display-6 mb-0">{{ health_day.steps }} <span class="fs-5 text-secondary">/ {{ health_day.step_goal }}</span></p>
+            </div>
+            <div class="progress" style="height: 12px;" role="progressbar" aria-label="Fortschritt zum Schrittziel" aria-valuenow="{{ step_progress }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{ step_progress }}%; background: #d77496;"></div>
+            </div>
+            <p class="small text-secondary mt-2 mb-0">
+                {% if steps_remaining %}Noch {{ steps_remaining }} Schritte bis zu deinem Tagesziel.{% else %}Schrittziel erreicht. Gut gemacht!{% endif %}
+            </p>
+        </div>
+    </section>
+
+    <section class="card shadow-sm" aria-labelledby="daily-health-title">
+        <div class="card-body p-4">
+            <h2 class="h3 mb-3" id="daily-health-title">Dein heutiger Stand</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label" for="id_steps">{{ form.steps.label }}</label>
+                        {{ form.steps }}
+                        {% if form.steps.errors %}<div class="text-danger small">{{ form.steps.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label" for="id_step_goal">{{ form.step_goal.label }}</label>
+                        {{ form.step_goal }}
+                        {% if form.step_goal.errors %}<div class="text-danger small">{{ form.step_goal.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.went_outside }}
+                            <label class="form-check-label" for="id_went_outside">{{ form.went_outside.label }}</label>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-4" type="submit">Heutigen Stand speichern</button>
+            </form>
+        </div>
+    </section>
+
+    <aside class="small text-secondary mt-4" aria-label="Schrittzähler-Integration">
+        <strong>Schritte vom Handy:</strong> Im Browser kannst du deinen Stand bereits manuell eintragen. Automatisches Auslesen benötigt später eine installierbare Handy-App mit Health Connect (Android) oder HealthKit (iPhone) und deine ausdrückliche Freigabe.
+    </aside>
+</main>
+{% endblock %}

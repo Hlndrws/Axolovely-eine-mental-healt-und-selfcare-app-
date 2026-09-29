@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    Axolovel · Dashboard
+{% endblock %}
+
+{% block content %}
+<style>
+    .module-card,
+    .mood-board-card {
+        background-color: var(--axolovel-card-pink);
+    }
+
+    .module-card {
+        min-height: 230px;
+        border-top: 4px solid var(--module-accent);
+        transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .module-cta {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        padding: 0.65rem 1.1rem;
+        border-radius: 999px;
+        font-family: var(--font-handlee);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    a.module-card {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    a.module-card:hover,
+    a.module-card:focus-visible {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(63, 41, 51, 0.12) !important;
+    }
+
+    .module-mark {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--module-accent) 18%, white);
+        font-size: 1.5rem;
+    }
+
+    .widget-track {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 1rem;
+        overflow-x: auto;
+        padding: 0.5rem 0.2rem 1rem;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+    }
+
+    .round-widget {
+        display: flex;
+        flex: 0 0 104px;
+        min-width: 104px;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.55rem;
+        color: inherit;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .round-widget-icon {
+        display: grid;
+        place-items: center;
+        width: 76px;
+        height: 76px;
+        border: 1px solid #ead4dc;
+        border-radius: 50%;
+        background: var(--axolovel-card-pink);
+        box-shadow: 0 4px 14px rgba(63, 41, 51, 0.08);
+        font-size: 1.8rem;
+        transition: background-color 160ms ease, transform 160ms ease;
+    }
+
+    .round-widget[href]:hover .round-widget-icon,
+    .round-widget[href]:focus-visible .round-widget-icon {
+        transform: translateY(-2px);
+        background: var(--axolovel-pink);
+    }
+
+    .round-widget.is-placeholder {
+        color: #71646a;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .module-card,
+        .round-widget-icon,
+        .widget-track {
+            scroll-behavior: auto;
+            transition: none;
+        }
+    }
+</style>
+<main class="container py-5">
+    <header class="mb-4">
+        <h1 class="display-5">Dein Dashboard</h1>
+        <p class="lead">Dein eigener, ruhiger Ort.</p>
+    </header>
+
+    <section class="mb-5" aria-labelledby="modules-title">
+        <h2 class="h3 mb-3" id="modules-title">Genieße deine Zeit hier...</h2>
+        <div class="row g-3">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="card module-card h-100 shadow-sm" href="{% url 'mood_tracker' %}" style="--module-accent: #d77496;">
+                    <div class="card-body p-4 d-flex flex-column align-items-start">
+                        <span class="module-mark mb-3" aria-hidden="true">♡</span>
+                        <h3 class="h5">Mood Tracker</h3>
+                        <p class="text-secondary mb-4">Halte fest, wie du dich heute fühlst, und schau auf frühere Tage zurück.</p>
+                        <span class="btn btn-primary module-cta mt-auto">Wie fühlst du dich heute?</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="card module-card h-100 shadow-sm" href="{% url 'axolo_tea' %}" style="--module-accent: #72a99a;">
+                    <div class="card-body p-4 d-flex flex-column align-items-start">
+                        <span class="module-mark mb-3" aria-hidden="true">☕</span> 
+                        <h3 class="h5">Axolo-Tea</h3>
+                        <p class="text-secondary mb-3">Teeschilder mit lieben Worten oder eine kleine Atemübung.</p>
+                        <span class="btn btn-primary module-cta mt-auto">Auswählen</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="card module-card h-100 shadow-sm" href="{% url 'gratitude_journal' %}" style="--module-accent: #d4a35b;">
+                    <div class="card-body p-4 d-flex flex-column align-items-start">
+                        <span class="module-mark mb-3" aria-hidden="true">✎</span>
+                        <h3 class="h5">Gratitude Journal</h3>
+                        <p class="text-secondary mb-3">Schreib auf, wofür du heute dankbar bist.</p>
+                        <span class="btn btn-primary module-cta mt-auto">Eintrag schreiben</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="card module-card h-100 shadow-sm" href="{% url 'routines' %}" style="--module-accent: #8299c8;">
+                    <div class="card-body p-4 d-flex flex-column align-items-start">
+                        <span class="module-mark mb-3" aria-hidden="true">✓</span>
+                        <h3 class="h5">Routinen</h3>
+                        <p class="text-secondary mb-3">Kleine tägliche To-dos abhaken und Gewohnheiten pflegen.</p>
+                        <span class="btn btn-primary module-cta mt-auto">Heute ansehen</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <a class="card module-card h-100 shadow-sm" href="{% url 'focus_timer' %}" style="--module-accent: #72a99a;">
+                    <div class="card-body p-4 d-flex flex-column align-items-start">
+                        <span class="module-mark mb-3" aria-hidden="true">◷</span>
+                        <h3 class="h5">Fokus Timer</h3>
+                        <p class="text-secondary mb-3">Arbeite in ruhigen Intervallen und wachse Blume für Blume.</p>
+                        <span class="btn btn-primary module-cta mt-auto">Fokus starten</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5" aria-labelledby="mood-board-title">
+        <div class="card mood-board-card shadow-sm">
+            <div class="card-body p-3 p-md-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <p class="text-uppercase text-secondary mb-1">Deine Stimmung im Überblick</p>
+                        <h2 class="h3 mb-0" id="mood-board-title">Mood Board</h2>
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-2 ms-auto">
+                        <div class="text-end" aria-live="polite">
+                            <p class="small mb-1">Heute lege ich meinen Fokus auf:</p>
+                            {% if today_focus_labels %}
+                                <div class="d-flex flex-wrap justify-content-end gap-1">
+                                    {% for label in today_focus_labels %}
+                                        <span class="badge rounded-pill text-bg-light border">{{ label.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <a class="small text-secondary" href="{% url 'mood_tracker' %}">Noch keine Labels ausgewählt</a>
+                            {% endif %}
+                        </div>
+                        <nav class="d-flex align-items-center gap-3" aria-label="Kalendermonat">
+                            <a class="btn btn-outline-secondary btn-sm" href="?month={{ previous_month }}" aria-label="Vorheriger Monat">‹</a>
+                            <strong>{{ month_title }}</strong>
+                            <a class="btn btn-outline-secondary btn-sm" href="?month={{ next_month }}" aria-label="Nächster Monat">›</a>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="mb-4" aria-label="Die drei häufigsten Stimmungen aus allen Einträgen">
+                    <p class="text-uppercase text-secondary mb-2">Top-Stimmungen · alle Einträge</p>
+                    {% if top_moods %}
+                        <div class="d-flex flex-wrap gap-3 gap-md-4">
+                            {% for mood in top_moods %}
+                            <div class="d-flex align-items-center gap-2 py-1">
+                                {% if mood.has_image %}
+                                    <img src="{{ mood.image_url }}" alt="" width="44" height="44" style="object-fit: contain;">
+                                {% else %}
+                                    <span class="fs-3" aria-hidden="true">{{ mood.face }}</span>
+                                {% endif %}
+                                <span>
+                                    <strong class="d-block">{{ mood.percentage }}%</strong>
+                                    <span class="small text-secondary">{{ mood.label }} · {{ mood.entry_count }}×</span>
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="small text-secondary mb-0">Noch keine Stimmungen eingetragen.</p>
+                    {% endif %}
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle mb-0">
+                        <thead>
+                            <tr>
+                                {% for weekday in weekdays %}<th scope="col">{{ weekday }}</th>{% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for week in weeks %}
+                            <tr>
+                                {% for cell in week %}
+                                <td class="p-1 p-sm-2{% if cell.is_today %} table-primary{% endif %}" style="height: 76px; min-width: 42px;">
+                                    {% if not cell.empty %}
+                                        {% if not cell.is_future %}
+                                            <a class="d-block text-reset text-decoration-none" href="{% url 'mood_tracker' %}?date={{ cell.date_value }}" aria-label="Eintrag vom {{ cell.date|date:'d.m.Y' }} öffnen">
+                                                <span class="small d-block">{{ cell.day }}</span>
+                                                {% if cell.entry %}
+                                                    {% if cell.has_mood_image %}
+                                                        <img src="{{ cell.mood_image_url }}" alt="{{ cell.entry.get_mood_display }}" title="{{ cell.entry.get_mood_display }}" width="34" height="34" style="object-fit: contain;">
+                                                    {% else %}
+                                                        <span class="fs-4" role="img" aria-label="{{ cell.entry.get_mood_display }}">{{ cell.mood_face }}</span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </a>
+                                        {% else %}
+                                            <span class="small d-block">{{ cell.day }}</span>
+                                            {% if cell.entry %}
+                                                {% if cell.has_mood_image %}
+                                                    <img src="{{ cell.mood_image_url }}" alt="{{ cell.entry.get_mood_display }}" title="{{ cell.entry.get_mood_display }}" width="34" height="34" style="object-fit: contain;">
+                                                {% else %}
+                                                    <span class="fs-4" role="img" aria-label="{{ cell.entry.get_mood_display }}">{{ cell.mood_face }}</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small text-secondary mt-3 mb-0">Heute: {{ today|date:"d.m.Y" }} · Wähle einen Tag im Kalender, um den Eintrag zu öffnen.</p>
+            </div>
+        </div>
+    </section>
+
+    <section aria-labelledby="quick-widgets-title">
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+            <div>
+                <p class="text-uppercase text-secondary mb-1">Kleine Helfer</p>
+                <h2 class="h3 mb-0" id="quick-widgets-title">Schnellzugriff</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary" type="button" data-widget-scroll="left" aria-label="Widgets nach links blättern">‹</button>
+                <button class="btn btn-outline-secondary" type="button" data-widget-scroll="right" aria-label="Widgets nach rechts blättern">›</button>
+            </div>
+        </div>
+        <div class="widget-track" id="widget-track" tabindex="0" aria-label="Schnellzugriff-Widgets">
+            <a class="round-widget" href="{% url 'mood_tracker' %}">
+                <span class="round-widget-icon" aria-hidden="true">♡</span>
+                <span class="small">Mood</span>
+            </a>
+            <a class="round-widget" href="{% url 'axolo_tea' %}">
+                <span class="round-widget-icon" aria-hidden="true">◌</span>
+                <span class="small">Axolo-Tea</span>
+            </a>
+            <a class="round-widget" href="{% url 'journal_profile' %}">
+                <span class="round-widget-icon" aria-hidden="true">▤</span>
+                <span class="small">Tagebuch</span>
+            </a>
+            <a class="round-widget" href="{% url 'hydration' %}">
+                <span class="round-widget-icon" aria-hidden="true">💧</span>
+                <span class="small">Hydration</span>
+            </a>
+            <a class="round-widget" href="{% url 'health_hub' %}">
+                <span class="round-widget-icon" aria-hidden="true">＋</span>
+                <span class="small">Healthhub</span>
+            </a>
+            <span class="round-widget is-placeholder" aria-disabled="true" title="Ein digitaler Küchentisch zum Wertschätzen und Pflegen von Freundschaften kommt später.">
+                <span class="round-widget-icon" aria-hidden="true">🍽</span>
+                <span class="small">Kitchen Table</span>
+            </span>
+            <a class="round-widget" href="{% url 'routines' %}">
+                <span class="round-widget-icon" aria-hidden="true">✓</span>
+                <span class="small">Routinen</span>
+            </a>
+            <a class="round-widget" href="{% url 'focus_timer' %}">
+                <span class="round-widget-icon" aria-hidden="true">🌷</span>
+                <span class="small">Zen Garten</span>
+            </a>
+        </div>
+    </section>
+</main>
+<script>
+    document.querySelectorAll("[data-widget-scroll]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const track = document.getElementById("widget-track");
+            const direction = button.dataset.widgetScroll === "right" ? 1 : -1;
+            track.scrollBy({ left: direction * 240, behavior: "smooth" });
+        });
+    });
+</script>
+{% endblock %}

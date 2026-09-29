@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Durchatmen · Axolo-Tea{% endblock %}
+
+{% block content %}
+{% if is_fullscreen %}
+<style>
+    body.breathing-fullscreen-mode {
+        overflow: hidden;
+    }
+
+    body.breathing-fullscreen-mode .site-header {
+        display: none;
+    }
+
+    .breathing-fullscreen {
+        display: grid;
+        min-height: 100svh;
+        place-items: center;
+        padding: 5rem 1.25rem 2rem;
+        background: #fff9fb;
+        text-align: center;
+    }
+
+    .exercise-orb {
+        display: grid;
+        width: min(66vw, 300px);
+        aspect-ratio: 1;
+        place-items: center;
+        border: 3px solid #d7c5e8;
+        background: var(--axolovel-lavender);
+        transition: transform 4s ease-in-out, background-color 4s ease-in-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .exercise-orb {
+            transition: none;
+        }
+    }
+</style>
+<script>document.body.classList.add("breathing-fullscreen-mode");</script>
+<main class="breathing-fullscreen">
+    {% url 'breathing' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zur Atemübungs-Auswahl" floating=True %}
+    <section style="max-width: 620px;">
+        <p class="text-uppercase text-secondary mb-1">Durchatmen</p>
+        <h1 class="display-5">{{ selected_exercise.name }}</h1>
+        <p class="lead">{{ selected_exercise.summary }}</p>
+        <p class="text-secondary">{{ selected_exercise.for_when }}</p>
+        <div class="d-flex justify-content-center align-items-center my-4">
+            <div id="breathing-orb" class="exercise-orb rounded-circle">
+                <span>
+                    <span class="h2 d-block mb-1" id="breathing-instruction" aria-live="polite">Bereit?</span>
+                    <span class="text-secondary" id="breathing-countdown">Starte, wenn es passt</span>
+                </span>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-lg" type="button" id="breathing-toggle">Start</button>
+        <p class="small text-secondary mt-4 mb-0">Wenn dir schwindlig oder unwohl wird, pausiere und atme normal weiter. Die Übung ist eine kleine Alltagspause und kein Ersatz für medizinische Hilfe.</p>
+    </section>
+</main>
+{{ selected_exercise.steps|json_script:"breathing-steps-data" }}
+<script>
+    const exerciseSteps = JSON.parse(document.getElementById("breathing-steps-data").textContent);
+    const orb = document.getElementById("breathing-orb");
+    const instruction = document.getElementById("breathing-instruction");
+    const countdown = document.getElementById("breathing-countdown");
+    const toggle = document.getElementById("breathing-toggle");
+    let breathingTimer = null;
+    let phaseIndex = 0;
+    let phaseRemaining = exerciseSteps[0].seconds;
+
+    function renderBreathingPhase() {
+        const phase = exerciseSteps[phaseIndex];
+        instruction.textContent = phase.label;
+        countdown.textContent = `${phaseRemaining} Sekunden`;
+        orb.style.transform = phase.label.toLowerCase().includes("einatmen") ? "scale(1.12)" : "scale(0.88)";
+        orb.style.backgroundColor = phase.label.toLowerCase().includes("einatmen") ? "#e9f3ef" : "var(--axolovel-lavender)";
+    }
+
+    function breathingTick() {
+        phaseRemaining -= 1;
+        if (phaseRemaining <= 0) {
+            phaseIndex = (phaseIndex + 1) % exerciseSteps.length;
+            phaseRemaining = exerciseSteps[phaseIndex].seconds;
+        }
+        renderBreathingPhase();
+    }
+
+    toggle.addEventListener("click", () => {
+        if (breathingTimer) {
+            clearInterval(breathingTimer);
+            breathingTimer = null;
+            toggle.textContent = "Weiter";
+            instruction.textContent = "Pause";
+            countdown.textContent = "Atme normal weiter";
+            orb.style.transform = "scale(1)";
+            return;
+        }
+        renderBreathingPhase();
+        breathingTimer = setInterval(breathingTick, 1000);
+        toggle.textContent = "Pause";
+    });
+</script>
+{% else %}
+<style>
+    .exercise-carousel {
+        display: flex;
+        gap: 0.8rem;
+        overflow-x: auto;
+        padding: 0.35rem 0.15rem 0.9rem;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+    }
+
+    .exercise-option {
+        display: flex;
+        flex: 0 0 min(78vw, 290px);
+        min-height: 220px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.2rem;
+        border: 1px solid #ead4dc;
+        border-radius: 6px;
+        background: var(--axolovel-card-pink);
+        color: var(--axolovel-ink);
+        text-align: left;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(63, 41, 51, 0.06);
+        transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .exercise-option:hover,
+    .exercise-option:focus-visible {
+        transform: translateY(-2px);
+        color: var(--axolovel-ink);
+        box-shadow: 0 8px 18px rgba(63, 41, 51, 0.12);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .exercise-carousel,
+        .exercise-option {
+            scroll-behavior: auto;
+            transition: none;
+        }
+    }
+</style>
+<main class="container py-5" style="max-width: 1050px;">
+    {% url 'axolo_tea' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zu Axolo-Tea" %}
+    <p class="text-uppercase text-secondary mb-1">Axolo-Tea</p>
+    <h1 class="display-5">Durchatmen</h1>
+    <p class="lead mb-4">Wähle eine Übung, die gerade zu dir passt. Du kannst jederzeit normal weiteratmen.</p>
+
+    <section aria-labelledby="exercise-picker-title">
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+            <h2 class="h3 mb-0" id="exercise-picker-title">Atemübungen</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-exercise-scroll="left" aria-label="Übungen nach links blättern">‹</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-exercise-scroll="right" aria-label="Übungen nach rechts blättern">›</button>
+            </div>
+        </div>
+        <div class="exercise-carousel" id="exercise-carousel" tabindex="0" aria-label="Atemübungen, horizontal durchblätterbar">
+            {% for exercise in exercises %}
+                <a class="exercise-option" href="?exercise={{ exercise.id }}">
+                    <span class="text-uppercase small text-secondary mb-2">Übung {{ forloop.counter }}</span>
+                    <strong class="h3">{{ exercise.name }}</strong>
+                    <span class="mb-2">{{ exercise.summary }}</span>
+                    <span class="small fw-semibold">Wann könnte sie passen?</span>
+                    <span class="small text-secondary mb-3">{{ exercise.for_when }}</span>
+                    <span class="btn btn-primary mt-auto">Übung auswählen</span>
+                </a>
+            {% endfor %}
+        </div>
+        <p class="small text-secondary mt-2">Wenn dir schwindlig oder unwohl wird, lass die Übung aus und atme normal weiter.</p>
+    </section>
+</main>
+<script>
+    const exerciseCarousel = document.getElementById("exercise-carousel");
+    document.querySelectorAll("[data-exercise-scroll]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const direction = button.dataset.exerciseScroll === "right" ? 1 : -1;
+            exerciseCarousel.scrollBy({ left: direction * 310, behavior: "smooth" });
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

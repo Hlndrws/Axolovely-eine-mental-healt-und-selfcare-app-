@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Mood Tracker · Axolovel{% endblock %}
+
+{% block content %}
+<style>
+    .mood-choice:checked + .mood-card {
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.2);
+        background-color: rgba(var(--bs-primary-rgb), 0.06);
+    }
+
+    .mood-choice:focus-visible + .mood-card {
+        outline: 3px solid var(--bs-primary);
+        outline-offset: 2px;
+    }
+
+    .focus-label-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .focus-label-option {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.8rem;
+        border: 1px solid #e4c4d1;
+        border-radius: 999px;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .focus-label-option:has(input:checked) {
+        border-color: var(--axolovel-pink-hover);
+        background: var(--axolovel-card-pink);
+    }
+
+    .new-focus-label {
+        max-width: 420px;
+    }
+</style>
+<main class="container py-5" style="max-width: 760px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+    <p class="text-secondary mb-1">{{ selected_date|date:"l, d.m.Y" }}</p>
+    <h1 class="display-6 mb-2">{% if is_today %}Wie fühlst du dich heute?{% else %}Wie hast du dich an diesem Tag gefühlt?{% endif %}</h1>
+
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+        <a class="btn btn-outline-secondary" href="?date={{ previous_day|date:'Y-m-d' }}" aria-label="Vorheriger Tag">‹</a>
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label class="visually-hidden" for="entry-date">Datum des Eintrags</label>
+            <input class="form-control" type="date" id="entry-date" name="date" value="{{ selected_date|date:'Y-m-d' }}" max="{{ today|date:'Y-m-d' }}">
+            <button class="btn btn-outline-primary" type="submit">Anzeigen</button>
+        </form>
+        {% if can_go_forward %}
+            <a class="btn btn-outline-secondary" href="?date={{ next_day|date:'Y-m-d' }}" aria-label="Nächster Tag">›</a>
+        {% endif %}
+    </div>
+
+    <p class="text-secondary mb-4">{% if has_entry %}Dein Eintrag für diesen Tag. Du kannst Stimmung und Text ansehen oder anpassen.{% else %}Für diesen Tag gibt es noch keinen Eintrag. Wähle eine Stimmung und halte sie fest.{% endif %}</p>
+
+    {% if messages %}
+        {% for message in messages %}<div class="alert alert-success d-flex align-items-start justify-content-between gap-3" role="status"><span>{{ message }}</span><button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button></div>{% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+        {% if form.mood.errors %}<div class="alert alert-danger">{{ form.mood.errors }}</div>{% endif %}
+        <fieldset>
+            <legend class="visually-hidden">Stimmung auswählen</legend>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3 mb-4">
+                {% for option in mood_options %}
+                <div class="col">
+                    <input class="btn-check mood-choice" type="radio" name="mood" id="mood-{{ option.value }}" value="{{ option.value }}" {% if option.selected %}checked{% endif %} required>
+                    <label class="card mood-card h-100 text-center p-2" for="mood-{{ option.value }}" style="cursor: pointer;">
+                        {% if option.has_image %}
+                            <img class="img-fluid mx-auto" src="{{ option.image_url }}" alt="" style="height: 76px; object-fit: contain;">
+                        {% else %}
+                            <span class="display-5" aria-hidden="true">{{ option.face }}</span>
+                        {% endif %}
+                        <span class="small mt-2">{{ option.label }}</span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="form-label fw-semibold">Worauf möchtest du heute deinen Fokus legen?</legend>
+            <p class="form-text mb-2">Wähle bis zu drei Labels oder lege ein neues an.</p>
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="focus-label-options">
+                {% for checkbox in form.focus_labels %}
+                    <label class="focus-label-option" for="{{ checkbox.id_for_label }}">
+                        {{ checkbox.tag }}
+                        <span>{{ checkbox.choice_label }}</span>
+                    </label>
+                {% empty %}
+                    <p class="text-secondary small">Die Fokuslabels werden geladen.</p>
+                {% endfor %}
+            </div>
+            <div class="new-focus-label mt-3">
+                <label class="form-label" for="id_new_focus_label">Neues Label anlegen</label>
+                <input class="form-control" type="text" id="id_new_focus_label" name="new_focus_label" maxlength="40" value="{{ form.new_focus_label.value|default_if_none:'' }}" placeholder="Zum Beispiel: Kreativität">
+                {% if form.new_focus_label.errors %}<div class="text-danger small mt-1">{{ form.new_focus_label.errors }}</div>{% endif %}
+            </div>
+        </fieldset>
+
+        <label class="form-label fw-semibold" for="id_note">Warum fühlst du dich so?</label>
+        <textarea class="form-control mb-2" id="id_note" name="note" rows="4" maxlength="500" placeholder="Schreib ein paar Worte dazu …">{{ form.note.value|default_if_none:"" }}</textarea>
+        {% if form.note.errors %}<div class="text-danger small mb-2">{{ form.note.errors }}</div>{% endif %}
+        <p class="form-text mb-4">Maximal 500 Zeichen.</p>
+
+        <button class="btn btn-primary" type="submit">Stimmung speichern</button>
+    </form>
+</main>
+{% endblock %}

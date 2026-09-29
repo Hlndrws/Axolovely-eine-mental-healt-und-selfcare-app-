@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Routinen · Axolovel{% endblock %}
+
+{% block content %}
+<style>
+    .routine-remove {
+        display: inline-grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: #b52d63;
+        color: #fff;
+        font-family: var(--font-handlee);
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .routine-remove:hover,
+    .routine-remove:focus-visible {
+        background: #8f1e4b;
+        color: #fff;
+    }
+</style>
+<main class="container py-5" style="max-width: 760px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+    <p class="text-secondary mb-1">{{ today|date:"l, d.m.Y" }}</p>
+    <h1 class="display-5">Deine Routinen</h1>
+    <p class="lead mb-4">Kleine Schritte zählen. Was möchtest du heute oder diese Woche abhaken?</p>
+
+    {% if messages %}
+        {% for message in messages %}<div class="alert alert-info d-flex align-items-start justify-content-between gap-3" role="status"><span>{{ message }}</span><button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button></div>{% endfor %}
+    {% endif %}
+
+    <section class="card shadow-sm mb-4" style="background: var(--axolovel-card-pink);" aria-labelledby="daily-routine-title">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-baseline gap-3 mb-3">
+                <h2 class="h3 mb-0" id="daily-routine-title">Heute · täglich</h2>
+                <span class="small text-secondary">{{ daily_completed_count }} von {{ daily_total_count }} erledigt</span>
+            </div>
+            {% if daily_rows %}
+                <ul class="list-group list-group-flush">
+                    {% for row in daily_rows %}
+                    <li class="list-group-item bg-transparent d-flex align-items-center gap-3 px-0">
+                        <form method="post" class="m-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="routine_id" value="{{ row.routine.id }}">
+                            <input class="form-check-input" type="checkbox" id="routine-{{ row.routine.id }}" {% if row.completed %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="visually-hidden" for="routine-{{ row.routine.id }}">{{ row.routine.title }} erledigt</label>
+                        </form>
+                        <span class="flex-grow-1{% if row.completed %} text-decoration-line-through text-secondary{% endif %}">{{ row.routine.title }}</span>
+                        <form method="post" class="m-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="routine_id" value="{{ row.routine.id }}">
+                            <button class="routine-remove" type="submit" aria-label="Routine {{ row.routine.title }} entfernen" title="Routine entfernen">×</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-secondary mb-0">Noch keine täglichen Routinen angelegt.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="card shadow-sm mb-4" style="background: var(--axolovel-card-pink);" aria-labelledby="weekly-routine-title">
+        <div class="card-body p-3 p-md-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-1">
+                <h2 class="h3 mb-0" id="weekly-routine-title">Einmal pro Woche</h2>
+                <span class="small text-secondary">{{ weekly_completed_count }} von {{ weekly_total_count }} erledigt</span>
+            </div>
+            <p class="small text-secondary mb-3">Ein Häkchen gilt für diese Woche und wird am Montag zurückgesetzt.</p>
+            {% if weekly_rows %}
+                <ul class="list-group list-group-flush">
+                    {% for row in weekly_rows %}
+                    <li class="list-group-item bg-transparent d-flex align-items-center gap-3 px-0">
+                        <form method="post" class="m-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="routine_id" value="{{ row.routine.id }}">
+                            <input class="form-check-input" type="checkbox" id="routine-{{ row.routine.id }}" {% if row.completed %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="visually-hidden" for="routine-{{ row.routine.id }}">{{ row.routine.title }} diese Woche erledigt</label>
+                        </form>
+                        <span class="flex-grow-1{% if row.completed %} text-decoration-line-through text-secondary{% endif %}">{{ row.routine.title }}</span>
+                        <form method="post" class="m-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="routine_id" value="{{ row.routine.id }}">
+                            <button class="routine-remove" type="submit" aria-label="Routine {{ row.routine.title }} entfernen" title="Routine entfernen">×</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-secondary mb-0">Noch keine wöchentlichen Routinen angelegt.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section aria-labelledby="add-routine-title">
+        <h2 class="h3" id="add-routine-title">Routine hinzufügen</h2>
+        <form method="post" class="d-flex flex-column flex-sm-row gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            {{ form.title }}
+            {{ form.frequency }}
+            <button class="btn btn-primary flex-shrink-0" type="submit">Hinzufügen</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

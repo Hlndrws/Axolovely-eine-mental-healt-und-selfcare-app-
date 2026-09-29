@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}Fokus Timer · Axolovel{% endblock %}
+
+{% block content %}
+<style>
+    .focus-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+        gap: 1.25rem;
+        align-items: stretch;
+    }
+
+    .focus-panel,
+    .zen-panel {
+        min-width: 0;
+        border-radius: 8px;
+        background: var(--axolovel-card-pink);
+    }
+
+    .focus-clock {
+        font-size: clamp(3.5rem, 14vw, 6.5rem);
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .focus-mode .site-header,
+    .focus-mode .focus-intro,
+    .focus-mode .focus-settings,
+    .focus-mode .zen-panel {
+        display: none !important;
+    }
+
+    .focus-mode .focus-page {
+        display: grid;
+        min-height: 100svh;
+        place-items: center;
+        padding-block: 2rem;
+    }
+
+    .focus-mode .focus-panel {
+        width: min(100%, 620px);
+        min-height: 70svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .focus-mode .focus-mode-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10;
+    }
+
+    .garden-patch {
+        min-height: 150px;
+        padding: 1rem;
+        border: 1px solid rgba(88, 127, 93, 0.28);
+        border-radius: 6px;
+        background: linear-gradient(#eaf3e8 0 58%, #d9e8d4 58% 100%);
+    }
+
+    .garden-flowers {
+        display: flex;
+        min-height: 84px;
+        flex-wrap: wrap;
+        align-items: end;
+        justify-content: center;
+        gap: 0.4rem 0.75rem;
+    }
+
+    .garden-flower {
+        display: inline-block;
+        font-size: 2rem;
+        transform-origin: bottom center;
+        animation: flower-pop 480ms ease-out both;
+    }
+
+    @keyframes flower-pop {
+        from { transform: scale(0.25) translateY(14px); opacity: 0; }
+        to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .garden-progress {
+        height: 9px;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .garden-progress .progress-bar {
+        background: #d77496;
+    }
+
+    @media (max-width: 767px) {
+        .focus-layout {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .garden-flower {
+            animation: none;
+        }
+    }
+</style>
+<main class="container py-5 focus-page">
+    <form hidden aria-hidden="true">{% csrf_token %}</form>
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zum Dashboard" floating=True %}
+    <header class="focus-intro mb-4">
+        <p class="text-uppercase text-secondary mb-1">Axolovel</p>
+        <h1 class="display-5">Fokus Timer</h1>
+        <p class="lead">Ein Schritt nach dem anderen. Nach je 20 Fokusminuten wächst eine Blume.</p>
+    </header>
+
+    <div class="focus-layout">
+        <section class="focus-panel p-4 p-md-5 text-center" aria-labelledby="focus-phase">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-4">
+                <span class="badge rounded-pill text-bg-light" id="focus-phase">Fokus</span>
+                <span class="small text-secondary" id="focus-round">Intervall 1 von 4</span>
+                <button class="btn btn-outline-secondary btn-sm focus-mode-toggle" type="button" id="focus-mode-toggle" aria-pressed="false">Welt aus · Fokus an</button>
+            </div>
+
+            <p class="focus-clock mb-3" id="focus-clock" role="timer" aria-live="off">25:00</p>
+            <p class="text-secondary mb-4" id="focus-status" aria-live="polite">Bereit, wenn du es bist.</p>
+
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <button class="btn btn-primary btn-lg" type="button" id="focus-start">Start</button>
+                <button class="btn btn-outline-secondary" type="button" id="focus-reset">Zurücksetzen</button>
+            </div>
+
+            <p class="small text-secondary mt-4 mb-0">Der Signalton ertönt am Ende eines Fokus- oder Pausenintervalls.</p>
+        </section>
+
+        <section class="focus-settings" aria-labelledby="settings-title">
+            <h2 class="h3 mb-3" id="settings-title">Dein Rhythmus</h2>
+            <div class="row g-3">
+                <div class="col-12 col-sm-4 col-md-12">
+                    <label class="form-label" for="focus-minutes">Fokuszeit (Minuten)</label>
+                    <input class="form-control" type="number" id="focus-minutes" min="1" max="180" value="25">
+                </div>
+                <div class="col-12 col-sm-4 col-md-12">
+                    <label class="form-label" for="break-minutes">Pausenzeit (Minuten)</label>
+                    <input class="form-control" type="number" id="break-minutes" min="1" max="60" value="5">
+                </div>
+                <div class="col-12 col-sm-4 col-md-12">
+                    <label class="form-label" for="interval-count">Intervalle pro Runde</label>
+                    <input class="form-control" type="number" id="interval-count" min="1" max="12" value="4">
+                </div>
+            </div>
+            <p class="form-text mt-2">Die Timer-Einstellungen bleiben in diesem Browser. Dein Zen-Garten wird mit deinem Konto gespeichert.</p>
+        </section>
+
+        <section class="zen-panel p-4" aria-labelledby="zen-title">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <p class="text-uppercase text-secondary mb-1">Dein kleiner Garten</p>
+                    <h2 class="h3 mb-0" id="zen-title">Axolotl Zen Garten</h2>
+                </div>
+                <span class="badge rounded-pill text-bg-light" id="flower-count">0 Blumen</span>
+            </div>
+            <div class="garden-patch">
+                <div class="garden-flowers" id="garden-flowers" aria-live="polite" aria-label="Deine gewachsenen Blumen">
+                    <span class="text-secondary small" id="garden-empty">Hier wächst deine erste Blume.</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between small text-secondary mt-3 mb-1">
+                <span>Bis zur nächsten Blume</span>
+                <span id="next-flower-time">20:00</span>
+            </div>
+            <div class="progress garden-progress" role="progressbar" aria-label="Fortschritt zur nächsten Blume" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0">
+                <div class="progress-bar" id="garden-progress-bar" style="width: 0%;"></div>
+            </div>
+            <p class="small text-secondary mt-3 mb-0">Jede Blume steht für 20 Minuten aktive Fokuszeit, gesammelt über deine Timer-Sitzungen.</p>
+        </section>
+    </div>
+</main>
+<script>
+    const defaults = {focusMinutes: 25, breakMinutes: 5, intervals: 4};
+    const settingsKey = "axolovel-focus-settings";
+    const savedSettings = JSON.parse(localStorage.getItem(settingsKey) || "null");
+    const focusInput = document.getElementById("focus-minutes");
+    const breakInput = document.getElementById("break-minutes");
+    const intervalInput = document.getElementById("interval-count");
+    const clock = document.getElementById("focus-clock");
+    const phaseLabel = document.getElementById("focus-phase");
+    const roundLabel = document.getElementById("focus-round");
+    const statusLabel = document.getElementById("focus-status");
+    const startButton = document.getElementById("focus-start");
+    const resetButton = document.getElementById("focus-reset");
+    const focusModeButton = document.getElementById("focus-mode-toggle");
+    const flowerCountLabel = document.getElementById("flower-count");
+    const flowersContainer = document.getElementById("garden-flowers");
+    const emptyGardenLabel = document.getElementById("garden-empty");
+    const nextFlowerLabel = document.getElementById("next-flower-time");
+    const gardenProgress = document.getElementById("garden-progress-bar");
+    const gardenProgressTrack = gardenProgress.parentElement;
+
+    if (savedSettings) {
+        focusInput.value = savedSettings.focusMinutes || defaults.focusMinutes;
+        breakInput.value = savedSettings.breakMinutes || defaults.breakMinutes;
+        intervalInput.value = savedSettings.intervals || defaults.intervals;
+    }
+
+    let focusedSeconds = Number.parseInt("{{ focused_seconds|default:0 }}", 10);
+    let unsyncedFocusedSeconds = 0;
+    let phase = "focus";
+    let phaseRemaining = Number(focusInput.value) * 60;
+    let completedIntervals = 0;
+    let timerHandle = null;
+    let audioContext = null;
+    let shownFlowerCount = -1;
+
+    function getSettings() {
+        return {
+            focusMinutes: Math.min(180, Math.max(1, Number.parseInt(focusInput.value, 10) || defaults.focusMinutes)),
+            breakMinutes: Math.min(60, Math.max(1, Number.parseInt(breakInput.value, 10) || defaults.breakMinutes)),
+            intervals: Math.min(12, Math.max(1, Number.parseInt(intervalInput.value, 10) || defaults.intervals)),
+        };
+    }
+
+    function saveSettings() {
+        const settings = getSettings();
+        focusInput.value = settings.focusMinutes;
+        breakInput.value = settings.breakMinutes;
+        intervalInput.value = settings.intervals;
+        localStorage.setItem(settingsKey, JSON.stringify(settings));
+        if (!timerHandle && phase === "focus" && completedIntervals === 0) {
+            phaseRemaining = settings.focusMinutes * 60;
+            updateTimerDisplay();
+        }
+    }
+
+    function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+        const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+        return `${minutes}:${seconds}`;
+    }
+
+    function updateTimerDisplay() {
+        clock.textContent = formatTime(phaseRemaining);
+        phaseLabel.textContent = phase === "focus" ? "Fokus" : "Pause";
+        roundLabel.textContent = `Intervall ${Math.min(completedIntervals + 1, getSettings().intervals)} von ${getSettings().intervals}`;
+    }
+
+    function renderGarden() {
+        const flowers = Math.floor(focusedSeconds / 1200);
+        if (flowers !== shownFlowerCount) {
+            shownFlowerCount = flowers;
+            flowersContainer.querySelectorAll(".garden-flower").forEach((flower) => flower.remove());
+            emptyGardenLabel.hidden = flowers > 0;
+            for (let index = 0; index < Math.min(flowers, 36); index += 1) {
+                const flower = document.createElement("span");
+                flower.className = "garden-flower";
+                flower.setAttribute("role", "img");
+                flower.setAttribute("aria-label", `Blume ${index + 1}`);
+                flower.textContent = ["🌷", "🌼", "🌸", "🌺"][index % 4];
+                flowersContainer.appendChild(flower);
+            }
+            if (flowers > 36) {
+                const extraFlowers = document.createElement("span");
+                extraFlowers.className = "small text-secondary align-self-center";
+                extraFlowers.textContent = `+${flowers - 36}`;
+                flowersContainer.appendChild(extraFlowers);
+            }
+            flowerCountLabel.textContent = `${flowers} ${flowers === 1 ? "Blume" : "Blumen"}`;
+        }
+
+        const progressSeconds = focusedSeconds % 1200;
+        gardenProgress.style.width = `${progressSeconds / 12}%`;
+        gardenProgressTrack.setAttribute("aria-valuenow", progressSeconds);
+        nextFlowerLabel.textContent = formatTime(1200 - progressSeconds);
+    }
+
+    function playSignal() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        audioContext ||= new AudioContextClass();
+        if (audioContext.state === "suspended") audioContext.resume();
+        [0, 0.32, 0.64].forEach((delay) => {
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.frequency.value = 740;
+            gain.gain.setValueAtTime(0.0001, audioContext.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + delay + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + delay + 0.24);
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime + delay);
+            oscillator.stop(audioContext.currentTime + delay + 0.25);
+        });
+    }
+
+    async function syncFocusedSeconds() {
+        if (unsyncedFocusedSeconds === 0) return;
+        const secondsToSave = Math.min(60, unsyncedFocusedSeconds);
+        unsyncedFocusedSeconds -= secondsToSave;
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        try {
+            const response = await fetch("{% url 'focus_progress' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: new URLSearchParams({seconds: String(secondsToSave)}),
+            });
+            if (!response.ok) throw new Error("Fokuszeit konnte nicht gespeichert werden.");
+            const result = await response.json();
+            focusedSeconds = result.focused_seconds;
+            renderGarden();
+        } catch (error) {
+            unsyncedFocusedSeconds += secondsToSave;
+            statusLabel.textContent = "Speichern pausiert. Deine Fokuszeit wird erneut übertragen.";
+        }
+    }
+
+    function finishPhase() {
+        syncFocusedSeconds();
+        playSignal();
+        if (phase === "focus") {
+            completedIntervals += 1;
+            if (completedIntervals >= getSettings().intervals) {
+                clearInterval(timerHandle);
+                timerHandle = null;
+                phase = "focus";
+                phaseRemaining = getSettings().focusMinutes * 60;
+                statusLabel.textContent = "Deine Fokus-Runde ist geschafft. Gut gemacht!";
+                startButton.textContent = "Neue Runde starten";
+                completedIntervals = 0;
+                updateTimerDisplay();
+                return;
+            }
+            phase = "break";
+            phaseRemaining = getSettings().breakMinutes * 60;
+            statusLabel.textContent = "Zeit für eine kleine Pause.";
+        } else {
+            phase = "focus";
+            phaseRemaining = getSettings().focusMinutes * 60;
+            statusLabel.textContent = "Pause vorbei. Bereit für den nächsten Fokus?";
+        }
+        updateTimerDisplay();
+    }
+
+    function timerTick() {
+        phaseRemaining -= 1;
+        if (phase === "focus") {
+            focusedSeconds += 1;
+            unsyncedFocusedSeconds += 1;
+            renderGarden();
+            if (unsyncedFocusedSeconds >= 30) syncFocusedSeconds();
+        }
+        if (phaseRemaining <= 0) finishPhase();
+        else updateTimerDisplay();
+    }
+
+    startButton.addEventListener("click", () => {
+        if (timerHandle) {
+            clearInterval(timerHandle);
+            timerHandle = null;
+            syncFocusedSeconds();
+            startButton.textContent = "Weiter";
+            statusLabel.textContent = "Pausiert. Atme durch und mach weiter, wenn du bereit bist.";
+            return;
+        }
+        saveSettings();
+        if (phaseRemaining <= 0) phaseRemaining = (phase === "focus" ? getSettings().focusMinutes : getSettings().breakMinutes) * 60;
+        statusLabel.textContent = phase === "focus" ? "Welt aus. Fokus an." : "Deine Pause läuft.";
+        startButton.textContent = "Pause";
+        timerHandle = setInterval(timerTick, 1000);
+    });
+
+    resetButton.addEventListener("click", () => {
+        clearInterval(timerHandle);
+        timerHandle = null;
+        syncFocusedSeconds();
+        phase = "focus";
+        completedIntervals = 0;
+        phaseRemaining = getSettings().focusMinutes * 60;
+        statusLabel.textContent = "Bereit, wenn du es bist.";
+        startButton.textContent = "Start";
+        updateTimerDisplay();
+    });
+
+    focusModeButton.addEventListener("click", () => {
+        const enabled = document.body.classList.toggle("focus-mode");
+        focusModeButton.setAttribute("aria-pressed", String(enabled));
+        focusModeButton.textContent = enabled ? "Fokusmodus verlassen" : "Welt aus · Fokus an";
+    });
+
+    [focusInput, breakInput, intervalInput].forEach((input) => input.addEventListener("change", saveSettings));
+    updateTimerDisplay();
+    renderGarden();
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}
+    Home · Axolovel
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center">
+
+        <h1 class="display-4">
+            Axolovel 
+        </h1>
+
+        <p class="lead">
+            A tiny place to be kind to yourself.
+        </p>
+
+        <a class="btn btn-primary btn-begin" href="{% url 'base_page' %}">
+            Let's begin ♡
+        </a>
+
+        <div>
+            <img class="img-fluid mt-4" src="{% static 'pics/heart.png' %}" alt="Axolotl" style="max-width: 320px;">
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

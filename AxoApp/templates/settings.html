@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Einstellungen · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 720px;">
+    <p class="text-uppercase text-secondary mb-1">App</p>
+    <h1 class="display-6">Einstellungen</h1>
+    <p class="lead">Deine App-Einstellungen werden hier gesammelt.</p>
+    <p class="text-secondary">Weitere Optionen können hier ergänzt werden.</p>
+    <a class="btn btn-primary mt-2" href="{% url 'base_page' %}">Zum Dashboard</a>
+</main>
+{% endblock %}

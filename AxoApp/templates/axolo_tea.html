@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Axolo-Tea · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 900px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+    <p class="text-uppercase text-secondary mb-1">Eine kleine Pause</p>
+    <h1 class="display-5 mb-2">Axolo-Tea</h1>
+    <p class="lead mb-4">Was würde dir gerade guttun?</p>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <section class="card h-100 shadow-sm" style="background: var(--axolovel-lavender);">
+                <div class="card-body p-4 d-flex flex-column align-items-start">
+                    <span class="display-5 mb-3" aria-hidden="true">☕</span>
+                    <h2 class="h3">Tea Time</h2>
+                    <p class="text-secondary">Take a break and read some Teeschilder with nice words.</p>
+                    <div class="bg-white rounded p-4 my-3 w-100 text-center" aria-live="polite" aria-atomic="true">
+                        <p class="text-uppercase small text-secondary mb-2">Dein Teeschild</p>
+                        <p class="h4 mb-0" id="tea-sign">{{ tea_signs.0 }}</p>
+                    </div>
+                    <button class="btn btn-primary mt-auto" type="button" id="next-tea-sign">Noch ein Teeschild</button>
+                </div>
+            </section>
+        </div>
+        <div class="col-12 col-md-6">
+            <a class="card h-100 shadow-sm text-decoration-none text-dark" href="{% url 'breathing' %}" style="background: #e9f3ef;">
+                <div class="card-body p-4 d-flex flex-column align-items-start">
+                    <span class="display-5 mb-3" aria-hidden="true">◌</span>
+                    <h2 class="h3">Durchatmen</h2>
+                    <p class="text-secondary">Eine ruhige Atemübung als kleine Hilfe, wenn gerade viel los ist.</p>
+                    <span class="btn btn-outline-success mt-auto">Atemübung öffnen</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>
+{{ tea_signs|json_script:"tea-signs-data" }}
+<script>
+    const teaSigns = JSON.parse(document.getElementById("tea-signs-data").textContent);
+    let teaSignIndex = 0;
+    document.getElementById("next-tea-sign").addEventListener("click", () => {
+        teaSignIndex = (teaSignIndex + 1) % teaSigns.length;
+        document.getElementById("tea-sign").textContent = teaSigns[teaSignIndex];
+    });
+</script>
+{% endblock %}

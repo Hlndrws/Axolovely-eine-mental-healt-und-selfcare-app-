@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Registrieren · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 560px;">
+    {% url 'home' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zur Startseite" %}
+    <p class="text-uppercase text-secondary mt-4 mb-1">Dein persönlicher Ort</p>
+    <h1 class="display-5">Konto erstellen</h1>
+    <p class="lead mb-4">Deine Mood-, Journal- und Routinen-Einträge bleiben mit deinem Konto verknüpft.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button class="btn btn-primary w-100" type="submit">Registrieren</button>
+    </form>
+    <p class="text-center mt-4 mb-0">Schon registriert? <a href="{% url 'login' %}">Anmelden</a></p>
+</main>
+{% endblock %}

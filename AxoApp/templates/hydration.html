@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Hydration · Axolovel{% endblock %}
+
+{% block content %}
+<style>
+    .hydration-panel {
+        background: var(--axolovel-card-pink);
+    }
+
+    .hydration-glasses {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+        gap: 0.8rem;
+        max-width: 620px;
+        margin-inline: auto;
+    }
+
+    .hydration-glass-action {
+        display: grid;
+        min-height: 104px;
+        place-items: center;
+        padding: 0.35rem;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--axolovel-ink);
+        cursor: pointer;
+    }
+
+    .hydration-glass-action:disabled {
+        cursor: default;
+        opacity: 1;
+    }
+
+    .glass-vessel {
+        position: relative;
+        display: block;
+        width: 48px;
+        height: 68px;
+        overflow: hidden;
+        border: 3px solid #bd6c8b;
+        border-top: 0;
+        border-radius: 3px 3px 12px 12px;
+        background: rgba(255, 255, 255, 0.72);
+        transform: perspective(70px) rotateX(-3deg);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+
+    .glass-vessel::before {
+        position: absolute;
+        top: 0;
+        right: -3px;
+        left: -3px;
+        height: 3px;
+        background: #bd6c8b;
+        content: "";
+    }
+
+    .glass-liquid {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 0;
+        background: #ed8eae;
+        transition: height 280ms ease;
+    }
+
+    .glass-vessel.is-filled .glass-liquid {
+        height: 82%;
+        background: linear-gradient(to top, #e979a0, #f3a7bf);
+    }
+
+    .hydration-glass-action:not(:disabled):hover .glass-vessel,
+    .hydration-glass-action:not(:disabled):focus-visible .glass-vessel {
+        transform: perspective(70px) rotateX(-3deg) translateY(-3px);
+        box-shadow: 0 0 0 3px rgba(237, 142, 174, 0.25);
+    }
+
+    .hydration-progress {
+        height: 12px;
+        background: #fff;
+    }
+
+    .hydration-progress .progress-bar {
+        background: #df7197;
+        transition: width 250ms ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .glass-vessel,
+        .glass-liquid,
+        .hydration-progress .progress-bar {
+            transition: none;
+        }
+    }
+</style>
+<main class="container py-5" style="max-width: 820px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+    <p class="text-secondary mb-1">{{ today|date:"l, d.m.Y" }}</p>
+    <h1 class="display-5">Hydration</h1>
+    <p class="lead mb-4">Ein Schluck nach dem anderen.</p>
+
+    {% if messages %}
+        {% for message in messages %}<div class="alert alert-success d-flex align-items-start justify-content-between gap-3" role="status"><span>{{ message }}</span><button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button></div>{% endfor %}
+    {% endif %}
+
+    <section class="card hydration-panel shadow-sm mb-4" aria-labelledby="hydration-goal-title">
+        <div class="card-body p-4 p-md-5 text-center">
+            <p class="text-uppercase text-secondary mb-1">Dein heutiger Stand</p>
+            <h2 class="display-5 mb-0">{{ hydration_day.consumed_ml }} <span class="fs-4">ml</span></h2>
+            <p class="text-secondary">von {{ hydration_day.goal_ml }} ml</p>
+
+            <div class="progress hydration-progress mb-2" role="progressbar" aria-label="Tagesziel erreicht" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{ progress }}%;"></div>
+            </div>
+            <p class="small text-secondary mb-4">{{ progress }}%{% if goal_reached %} · Tagesziel erreicht, toll gemacht!{% endif %}</p>
+
+            <div class="hydration-glasses mb-4" aria-label="Gläser mit je 250 Millilitern">
+                {% for glass in glasses %}
+                    {% if glass.can_toggle %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_glass">
+                            <input type="hidden" name="glass_number" value="{{ glass.number }}">
+                            <button class="hydration-glass-action" type="submit" aria-label="{% if glass.filled %}Letztes Glas mit 250 Millilitern zurücknehmen{% else %}Ein Glas mit 250 Millilitern hinzufügen{% endif %}">
+                                <span class="glass-vessel{% if glass.filled %} is-filled{% endif %}"><span class="glass-liquid"></span></span>
+                                <span class="small mt-1">{% if glass.filled %}250 ml{% else %}+250 ml{% endif %}</span>
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="hydration-glass-action" aria-hidden="true">
+                            <span class="glass-vessel{% if glass.filled %} is-filled{% endif %}"><span class="glass-liquid"></span></span>
+                            <span class="small mt-1">{% if glass.filled %}250 ml{% else %}+250 ml{% endif %}</span>
+                        </span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <p class="small text-secondary mb-0">Tippe auf das nächste leere Glas für +250 ml. Ein erneuter Klick auf das letzte volle Glas nimmt es zurück. Als grobe Orientierung werden oft 2–3 Liter am Tag empfohlen; dein persönlicher Bedarf kann abweichen.</p>
+        </div>
+    </section>
+
+    <section aria-labelledby="hydration-goal-title">
+        <h2 class="h3" id="hydration-goal-title">Tagesziel festlegen</h2>
+        <p class="text-secondary">Du kannst dein Ziel jederzeit anpassen.</p>
+        <form method="post" class="d-flex flex-column flex-sm-row align-items-sm-end gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_goal">
+            <div>
+                {{ goal_form.goal_liters.label_tag }}
+                {{ goal_form.goal_liters }}
+                {% if goal_form.goal_liters.errors %}<div class="text-danger small">{{ goal_form.goal_liters.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary" type="submit">Ziel speichern</button>
+        </form>
+        <p class="form-text">Vorschlag: 2–3 Liter ({{ goal_form.goal_liters.field.widget.attrs.min }}–{{ goal_form.goal_liters.field.widget.attrs.max }} Liter auswählbar).</p>
+    </section>
+</main>
+{% endblock %}

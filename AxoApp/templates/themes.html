@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Axolotl Themes · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 720px;">
+    <p class="text-uppercase text-secondary mb-1">Personalisierung</p>
+    <h1 class="display-5">Axolotl Themes</h1>
+    <p class="lead">Farbmodi und weitere Designs kommen später dazu.</p>
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+</main>
+{% endblock %}

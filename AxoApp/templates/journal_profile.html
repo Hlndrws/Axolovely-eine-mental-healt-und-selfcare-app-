@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Mein Steckbrief · Tagebuch{% endblock %}
+
+{% block content %}
+<style>
+    .journal-page {
+        padding: clamp(1.25rem, 5vw, 3rem);
+        border: 1px solid #eadde1;
+        border-left: 7px solid var(--axolovel-pink-hover);
+        border-radius: 5px;
+        background: #fffdfc;
+        box-shadow: 0 8px 28px rgba(63, 41, 51, 0.08);
+    }
+
+    .profile-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 1.5rem;
+    }
+
+    .profile-field label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-weight: 600;
+    }
+
+    .profile-field-wide {
+        grid-column: 1 / -1;
+    }
+
+    .profile-field textarea {
+        min-height: 74px;
+        resize: vertical;
+    }
+
+    @media (max-width: 575px) {
+        .profile-fields {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
+<main class="container py-5" style="max-width: 900px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zum Dashboard" %}
+
+    <article class="journal-page">
+        <header class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+            <div>
+                <p class="text-uppercase text-secondary mb-1">Tagebuch · Seite 1</p>
+                <h1 class="display-5 mb-1">Mein Steckbrief</h1>
+                <p class="text-secondary mb-0">Ein paar Dinge über mich, für mich.</p>
+            </div>
+            <a class="btn btn-primary" href="{% url 'diary_entry' %}?date={{ today|date:'Y-m-d' }}">Weiterblättern zum Tagebuch →</a>
+        </header>
+
+        {% if messages %}
+            {% for message in messages %}<div class="alert alert-success d-flex align-items-start justify-content-between gap-3" role="status"><span>{{ message }}</span><button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button></div>{% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="profile-fields">
+                {% for field in form %}
+                    <div class="profile-field{% if field.name == 'hobbies' or field.name == 'perfect_free_day' or field.name == 'want_to_learn' or field.name == 'good_at' or field.name == 'like_about_myself' %} profile-field-wide{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4">
+                <p class="small text-secondary mb-0">Dein Steckbrief bleibt gespeichert und kann jederzeit geändert werden.</p>
+                <button class="btn btn-primary" type="submit">Steckbrief speichern</button>
+            </div>
+        </form>
+    </article>
+</main>
+{% endblock %}

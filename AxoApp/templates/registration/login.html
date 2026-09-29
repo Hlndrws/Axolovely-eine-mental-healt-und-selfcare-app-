@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Anmelden · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 520px;">
+    {% url 'home' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zur Startseite" %}
+    <p class="text-uppercase text-secondary mt-4 mb-1">Willkommen zurück</p>
+    <h1 class="display-5">Anmelden</h1>
+    <p class="lead mb-4">Melde dich an, um deine persönlichen Einträge zu öffnen.</p>
+
+    {% if form.errors %}<div class="alert alert-danger" role="alert">Benutzername oder Passwort stimmt nicht.</div>{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="id_username">Benutzername</label>
+            <input class="form-control" type="text" name="username" id="id_username" autocomplete="username" required autofocus>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="id_password">Passwort</label>
+            <input class="form-control" type="password" name="password" id="id_password" autocomplete="current-password" required>
+        </div>
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="btn btn-primary w-100" type="submit">Anmelden</button>
+    </form>
+    <p class="text-center mt-4 mb-0">Noch kein Konto? <a href="{% url 'register' %}">Jetzt registrieren</a></p>
+</main>
+{% endblock %}
