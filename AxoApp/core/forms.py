@@ -55,16 +55,20 @@ class HealthDayForm(forms.ModelForm):
 class KitchenTablePersonForm(forms.ModelForm):
     class Meta:
         model = KitchenTablePerson
-        fields = ["name", "avatar", "appreciation", "care_idea"]
+        fields = ["name", "avatar_gender", "avatar_hair_color", "avatar_glasses", "appreciation", "care_idea"]
         labels = {
             "name": "Name oder Spitzname",
-            "avatar": "Avatar",
+            "avatar_gender": "Figur",
+            "avatar_hair_color": "Haarfarbe",
+            "avatar_glasses": "Brille",
             "appreciation": "Was schätze ich an dieser Person?",
             "care_idea": "Wie möchte ich diese Freundschaft pflegen?",
         }
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control", "maxlength": 100}),
-            "avatar": forms.RadioSelect(attrs={"class": "avatar-radio"}),
+            "avatar_gender": forms.RadioSelect(attrs={"class": "avatar-gender-radio"}),
+            "avatar_hair_color": forms.RadioSelect(attrs={"class": "avatar-color-radio"}),
+            "avatar_glasses": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "appreciation": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "care_idea": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }

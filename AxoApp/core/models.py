@@ -105,16 +105,25 @@ class FocusProgress(models.Model):
 
 
 class KitchenTablePerson(models.Model):
-	AVATAR_CHOICES = [
-		("😊", "😊"), ("🌸", "🌸"), ("🦋", "🦋"), ("🌼", "🌼"),
-		("🍵", "🍵"), ("🌙", "🌙"), ("⭐", "⭐"), ("💗", "💗"),
-		("🍀", "🍀"), ("🐰", "🐰"), ("🦊", "🦊"), ("🐢", "🐢"),
-		("🐼", "🐼"), ("🐙", "🐙"), ("🦥", "🦥"), ("🌻", "🌻"),
+	GENDER_CHOICES = [
+		("neutral", "Neutral"),
+		("man", "Mann"),
+		("woman", "Frau"),
+	]
+	HAIR_COLOR_CHOICES = [
+		("#2b2b2b", "Schwarz"),
+		("#6b4226", "Braun"),
+		("#d9b56a", "Blond"),
+		("#a3402b", "Rot"),
+		("#b0b0b0", "Grau"),
+		("#e6a8c8", "Pink"),
 	]
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="kitchen_table_people")
 	name = models.CharField(max_length=100)
-	avatar = models.CharField(max_length=8, choices=AVATAR_CHOICES, default="😊")
+	avatar_gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default="neutral", blank=True)
+	avatar_hair_color = models.CharField(max_length=7, choices=HAIR_COLOR_CHOICES, default="#6b4226", blank=True)
+	avatar_glasses = models.BooleanField(default=False, blank=True)
 	appreciation = models.TextField(blank=True)
 	care_idea = models.TextField(blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)

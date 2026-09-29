@@ -30,7 +30,10 @@
                 <div class="col-12 col-md-6">
                     <article class="card h-100 shadow-sm" style="background: var(--axolovel-card-pink);">
                         <div class="card-body p-4">
-                            <h3 class="h3">{{ person.name }}</h3>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="kitchen-avatar" aria-hidden="true">{% include "partials/avatar_icon.html" with gender=person.avatar_gender hair_color=person.avatar_hair_color glasses=person.avatar_glasses size=48 %}</span>
+                                <h3 class="h3 mb-0">{{ person.name }}</h3>
+                            </div>
                             {% if person.appreciation %}
                                 <p class="mb-3"><strong>Was ich an dir schätze</strong><br>{{ person.appreciation|linebreaksbr }}</p>
                             {% endif %}
@@ -48,6 +51,9 @@
                             </div>
                             <div class="d-none" id="person-data-{{ person.id }}"
                                  data-name="{{ person.name }}"
+                                 data-avatar-gender="{{ person.avatar_gender }}"
+                                 data-avatar-hair-color="{{ person.avatar_hair_color }}"
+                                 data-avatar-glasses="{{ person.avatar_glasses|yesno:'true,false' }}"
                                  data-appreciation="{{ person.appreciation }}"
                                  data-care-idea="{{ person.care_idea }}"></div>
                         </div>
@@ -73,6 +79,42 @@
                     {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
                 </div>
                 <div class="mb-3">
+                    <label class="form-label d-block">Aussehen</label>
+                    <div class="d-flex flex-wrap align-items-start gap-4">
+                        <div class="avatar-preview flex-shrink-0">
+                            {% include "partials/avatar_icon.html" with gender=form.avatar_gender.value hair_color=form.avatar_hair_color.value glasses=form.avatar_glasses.value size=72 %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Figur</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_gender %}
+                                        <label class="avatar-option-pill">
+                                            {{ radio.tag }}
+                                            <span>{{ radio.choice_label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Haarfarbe</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_hair_color %}
+                                        <label class="avatar-choice">
+                                            {{ radio.tag }}
+                                            <span class="avatar-swatch" style="background: {{ radio.data.value }};"></span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                {{ form.avatar_glasses }}
+                                <label class="form-check-label" for="id_avatar_glasses">{{ form.avatar_glasses.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
                     <label class="form-label" for="id_appreciation">{{ form.appreciation.label }}</label>
                     {{ form.appreciation }}
                 </div>
@@ -88,6 +130,66 @@
         </div>
     </section>
 </main>
+<style>
+    .kitchen-avatar, .avatar-preview {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff;
+        overflow: hidden;
+    }
+    .kitchen-avatar { width: 2.5rem; height: 2.5rem; }
+    .avatar-preview { width: 4.5rem; height: 4.5rem; }
+    .avatar-icon { width: 100%; height: 100%; }
+    .avatar-option-pill {
+        position: relative;
+        cursor: pointer;
+        margin: 0;
+    }
+    .avatar-option-pill input {
+        position: absolute;
+        opacity: 0;
+    }
+    .avatar-option-pill span {
+        display: inline-block;
+        padding: .35rem .9rem;
+        border-radius: 999px;
+        background: #fff;
+        border: 2px solid transparent;
+        font-size: .85rem;
+        transition: border-color .15s, background .15s;
+    }
+    .avatar-option-pill input:checked + span {
+        border-color: #d6668f;
+        background: #ffe3ee;
+    }
+    .avatar-choice {
+        position: relative;
+        cursor: pointer;
+        margin: 0;
+    }
+    .avatar-choice input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
+    }
+    .avatar-swatch {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        transition: border-color .15s, transform .15s;
+    }
+    .avatar-choice input:checked + .avatar-swatch {
+        border-color: #4a4a4a;
+        transform: scale(1.15);
+    }
+</style>
 <script>
     document.querySelectorAll("[data-edit-person]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -96,18 +198,52 @@
             document.getElementById("person-form-title").textContent = "Freundschaftseintrag bearbeiten";
             document.getElementById("person-id").value = personId;
             document.getElementById("id_name").value = data.dataset.name;
+            const genderInput = document.querySelector(`input[name="avatar_gender"][value="${data.dataset.avatarGender}"]`);
+            if (genderInput) {
+                genderInput.checked = true;
+            }
+            const hairInput = document.querySelector(`input[name="avatar_hair_color"][value="${data.dataset.avatarHairColor}"]`);
+            if (hairInput) {
+                hairInput.checked = true;
+            }
+            document.getElementById("id_avatar_glasses").checked = data.dataset.avatarGlasses === "true";
             document.getElementById("id_appreciation").value = data.dataset.appreciation;
             document.getElementById("id_care_idea").value = data.dataset.careIdea;
             document.getElementById("cancel-edit").classList.remove("d-none");
+            refreshAvatarPreview();
             document.getElementById("person-form").scrollIntoView({behavior: "smooth", block: "center"});
         });
     });
+
+    function refreshAvatarPreview() {
+        const gender = document.querySelector('input[name="avatar_gender"]:checked')?.value || "neutral";
+        const hairColor = document.querySelector('input[name="avatar_hair_color"]:checked')?.value || "#6b4226";
+        const glasses = document.getElementById("id_avatar_glasses")?.checked || false;
+        document.querySelectorAll(".avatar-preview .avatar-hair").forEach((hairPath) => {
+            hairPath.classList.add("d-none");
+            hairPath.style.fill = hairColor;
+        });
+        const activeHair = document.querySelector(`.avatar-preview .avatar-hair-${gender}`);
+        if (activeHair) {
+            activeHair.classList.remove("d-none");
+        }
+        const glassesEl = document.querySelector(".avatar-preview .avatar-glasses");
+        if (glassesEl) {
+            glassesEl.classList.toggle("d-none", !glasses);
+        }
+    }
+
+    document.querySelectorAll('input[name="avatar_gender"], input[name="avatar_hair_color"]').forEach((input) => {
+        input.addEventListener("change", refreshAvatarPreview);
+    });
+    document.getElementById("id_avatar_glasses")?.addEventListener("change", refreshAvatarPreview);
 
     document.getElementById("cancel-edit").addEventListener("click", () => {
         document.getElementById("person-form").reset();
         document.getElementById("person-id").value = "";
         document.getElementById("person-form-title").textContent = "Jemanden an den Tisch einladen";
         document.getElementById("cancel-edit").classList.add("d-none");
+        refreshAvatarPreview();
     });
 </script>
 {% endblock %}
