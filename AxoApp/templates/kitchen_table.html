@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Kitchen Table · Axolovel{% endblock %}
+
+{% block content %}
+<main class="container py-5" style="max-width: 960px;">
+    {% url 'base_page' as back_url %}
+    {% include "partials/back_arrow.html" with back_url=back_url back_label="Zum Dashboard" %}
+    <p class="text-uppercase text-secondary mt-4 mb-1">Dein persönlicher Kreis</p>
+    <h1 class="display-5">Kitchen Table</h1>
+    <p class="lead mb-4">Wer gibt dir das Gefühl, am richtigen Tisch zu sitzen? Halte fest, was du an diesen Menschen schätzt und wie du eure Verbindung pflegen möchtest.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success d-flex align-items-start justify-content-between gap-3" role="status">
+                <span>{{ message }}</span>
+                <button class="message-close" type="button" aria-label="Hinweis schließen" data-dismiss-message>×</button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="mb-5" aria-labelledby="people-title">
+        <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+            <h2 class="h3 mb-0" id="people-title">Die Menschen an deinem Tisch</h2>
+            <span class="small text-secondary">Nur für dich sichtbar</span>
+        </div>
+        {% if people %}
+            <div class="row g-3">
+                {% for person in people %}
+                <div class="col-12 col-md-6">
+                    <article class="card h-100 shadow-sm" style="background: var(--axolovel-card-pink);">
+                        <div class="card-body p-4">
+                            <h3 class="h3">{{ person.name }}</h3>
+                            {% if person.appreciation %}
+                                <p class="mb-3"><strong>Was ich an dir schätze</strong><br>{{ person.appreciation|linebreaksbr }}</p>
+                            {% endif %}
+                            {% if person.care_idea %}
+                                <p class="mb-0"><strong>So möchte ich unsere Freundschaft pflegen</strong><br>{{ person.care_idea|linebreaksbr }}</p>
+                            {% endif %}
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-edit-person="{{ person.id }}">Bearbeiten</button>
+                                <form method="post" class="m-0" onsubmit="return confirm('Diesen Eintrag wirklich entfernen?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="person_id" value="{{ person.id }}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Entfernen</button>
+                                </form>
+                            </div>
+                            <div class="d-none" id="person-data-{{ person.id }}"
+                                 data-name="{{ person.name }}"
+                                 data-appreciation="{{ person.appreciation }}"
+                                 data-care-idea="{{ person.care_idea }}"></div>
+                        </div>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-secondary">Dein Tisch ist noch offen. Füge jemanden hinzu, an den du heute denken möchtest.</p>
+        {% endif %}
+    </section>
+
+    <section class="card shadow-sm" style="background: #fff9fb;" aria-labelledby="person-form-title">
+        <div class="card-body p-4 p-md-5">
+            <h2 class="h3 mb-3" id="person-form-title">Jemanden an den Tisch einladen</h2>
+            <form method="post" id="person-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save">
+                <input type="hidden" name="person_id" id="person-id">
+                <div class="mb-3">
+                    <label class="form-label" for="id_name">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_appreciation">{{ form.appreciation.label }}</label>
+                    {{ form.appreciation }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="id_care_idea">{{ form.care_idea.label }}</label>
+                    {{ form.care_idea }}
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-primary" type="submit">Eintrag speichern</button>
+                    <button class="btn btn-outline-secondary d-none" type="button" id="cancel-edit">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+<script>
+    document.querySelectorAll("[data-edit-person]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const personId = button.dataset.editPerson;
+            const data = document.getElementById(`person-data-${personId}`);
+            document.getElementById("person-form-title").textContent = "Freundschaftseintrag bearbeiten";
+            document.getElementById("person-id").value = personId;
+            document.getElementById("id_name").value = data.dataset.name;
+            document.getElementById("id_appreciation").value = data.dataset.appreciation;
+            document.getElementById("id_care_idea").value = data.dataset.careIdea;
+            document.getElementById("cancel-edit").classList.remove("d-none");
+            document.getElementById("person-form").scrollIntoView({behavior: "smooth", block: "center"});
+        });
+    });
+
+    document.getElementById("cancel-edit").addEventListener("click", () => {
+        document.getElementById("person-form").reset();
+        document.getElementById("person-id").value = "";
+        document.getElementById("person-form-title").textContent = "Jemanden an den Tisch einladen";
+        document.getElementById("cancel-edit").classList.add("d-none");
+    });
+</script>
+{% endblock %}

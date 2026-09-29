@@ -12,6 +12,7 @@ from .models import (
 	GratitudeEntry,
 	HealthDay,
 	HydrationDay,
+	KitchenTablePerson,
 	JournalProfile,
 	MoodEntry,
 	Routine,
@@ -41,6 +42,7 @@ class MoodTrackerTests(TestCase):
 		self.assertContains(response, reverse("focus_timer"))
 		self.assertContains(response, reverse("journal_profile"))
 		self.assertContains(response, "Routinen")
+		self.assertContains(response, reverse("kitchen_table"))
 		self.assertContains(response, 'class="btn btn-primary module-cta mt-auto', count=5)
 		self.assertContains(response, "widget-track")
 		self.assertContains(response, "Widgets nach links blättern")
@@ -69,12 +71,14 @@ class MoodTrackerTests(TestCase):
 		for route_name in (
 			"home", "base_page", "mood_tracker", "account", "app_settings",
 			"themes", "axolo_tea", "breathing", "hydration", "focus_timer", "gratitude_journal",
-			"journal_profile", "diary_entry", "routines", "health_hub", "focus_progress",
+			"journal_profile", "diary_entry", "routines", "health_hub", "kitchen_table", "focus_progress",
 			"login", "register", "logout",
 		):
 			with self.subTest(route=route_name):
 				view = resolve(reverse(route_name)).func
-				self.assertTrue(hasattr(view, "view_class"))
+				self.assertTrue(
+					hasattr(view, "view_class") or route_name in {"login", "logout"}
+				)
 
 	def test_profile_offers_login_and_registration_when_signed_out(self):
 		self.client.logout()
@@ -187,7 +191,12 @@ class MoodTrackerTests(TestCase):
 			self.assertContains(response, name)
 
 	def test_registration_claims_legacy_data_and_logs_new_user_in(self):
-		legacy_mood = MoodEntry.objects.create(date=timezone.localdate(), mood=3, note="Legacy-Eintrag")
+		legacy_mood = MoodEntry.objects.create(
+			date=timezone.localdate(),
+			user=None,
+			mood=3,
+			note="Legacy-Eintrag",
+		)
 		self.client.logout()
 
 		response = self.client.post(reverse("register"), {
@@ -246,6 +255,47 @@ class MoodTrackerTests(TestCase):
 		self.assertEqual(health_day.steps, 6400)
 		self.assertEqual(health_day.step_goal, 8000)
 		self.assertTrue(health_day.went_outside)
+
+	def test_kitchen_table_people_can_be_added_edited_and_removed_privately(self):
+		url = reverse("kitchen_table")
+		response = self.client.get(url)
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, "Wer gibt dir das Gefühl")
+
+		response = self.client.post(url, {
+			"action": "save",
+			"name": "Mira",
+			"appreciation": "Sie hört mir aufmerksam zu.",
+			"care_idea": "Wir trinken am Wochenende zusammen Tee.",
+		})
+		self.assertRedirects(response, url)
+		person = KitchenTablePerson.objects.get(user=self.user, name="Mira")
+
+		response = self.client.post(url, {
+			"action": "save",
+			"person_id": str(person.pk),
+			"name": "Mira",
+			"appreciation": "Sie bringt mich oft zum Lachen.",
+			"care_idea": "Zusammen spazieren gehen.",
+		})
+		self.assertRedirects(response, url)
+		person.refresh_from_db()
+		self.assertEqual(person.appreciation, "Sie bringt mich oft zum Lachen.")
+
+		other_user = get_user_model().objects.create_user(
+			username="kitchen-table-other",
+			password="Different-kitchen-password-789",
+		)
+		self.client.force_login(other_user)
+		self.assertNotContains(self.client.get(url), "Mira")
+		response = self.client.post(url, {"action": "delete", "person_id": str(person.pk)})
+		self.assertEqual(response.status_code, 404)
+		self.assertTrue(KitchenTablePerson.objects.filter(pk=person.pk).exists())
+
+		self.client.force_login(self.user)
+		response = self.client.post(url, {"action": "delete", "person_id": str(person.pk)})
+		self.assertRedirects(response, url)
+		self.assertFalse(KitchenTablePerson.objects.filter(pk=person.pk).exists())
 
 	def test_focus_progress_is_saved_to_the_current_account(self):
 		response = self.client.post(reverse("focus_progress"), {"seconds": "42"})

@@ -32,6 +32,7 @@ from core.views import (
     HomeView,
     HydrationView,
     JournalProfileView,
+    KitchenTableView,
     MoodTrackerView,
     RoutinesView,
     RegistrationView,
@@ -61,5 +62,6 @@ urlpatterns = [
     path("gratitude/", GratitudeJournalView.as_view(), name="gratitude_journal"),
     path("journal/", JournalProfileView.as_view(), name="journal_profile"),
     path("journal/entry/", DiaryEntryView.as_view(), name="diary_entry"),
+    path("kitchen-table/", KitchenTableView.as_view(), name="kitchen_table"),
     path("routines/", RoutinesView.as_view(), name="routines"),
 ]

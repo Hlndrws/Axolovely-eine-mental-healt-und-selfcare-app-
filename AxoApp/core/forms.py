@@ -4,7 +4,16 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from .models import DiaryEntry, FocusLabel, GratitudeEntry, HealthDay, JournalProfile, MoodEntry, Routine
+from .models import (
+    DiaryEntry,
+    FocusLabel,
+    GratitudeEntry,
+    HealthDay,
+    JournalProfile,
+    KitchenTablePerson,
+    MoodEntry,
+    Routine,
+)
 
 User = get_user_model()
 
@@ -41,10 +50,23 @@ class HealthDayForm(forms.ModelForm):
             "step_goal": "Schrittziel",
             "went_outside": "Heute draußen gewesen",
         }
+
+
+class KitchenTablePersonForm(forms.ModelForm):
+    class Meta:
+        model = KitchenTablePerson
+        fields = ["name", "avatar", "appreciation", "care_idea"]
+        labels = {
+            "name": "Name oder Spitzname",
+            "avatar": "Avatar",
+            "appreciation": "Was schätze ich an dieser Person?",
+            "care_idea": "Wie möchte ich diese Freundschaft pflegen?",
+        }
         widgets = {
-            "steps": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "1"}),
-            "step_goal": forms.NumberInput(attrs={"class": "form-control", "min": "1", "step": "500"}),
-            "went_outside": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "name": forms.TextInput(attrs={"class": "form-control", "maxlength": 100}),
+            "avatar": forms.RadioSelect(attrs={"class": "avatar-radio"}),
+            "appreciation": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "care_idea": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }
 
 

@@ -14,6 +14,7 @@ from ..models import (
 	GratitudeEntry,
 	HydrationDay,
 	HealthDay,
+	KitchenTablePerson,
 	JournalProfile,
 	MoodEntry,
 	Routine,
@@ -34,7 +35,7 @@ class RegistrationView(FormView):
 
 	@transaction.atomic
 	def claim_legacy_data(self, user):
-		for model in (MoodEntry, HydrationDay, GratitudeEntry, DiaryEntry, Routine):
+		for model in (MoodEntry, HydrationDay, GratitudeEntry, DiaryEntry, Routine, KitchenTablePerson):
 			model.objects.filter(user__isnull=True).update(user=user)
 
 		profile = JournalProfile.objects.filter(user__isnull=True).first()

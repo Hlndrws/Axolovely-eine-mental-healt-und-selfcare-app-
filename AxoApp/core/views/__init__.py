@@ -3,6 +3,7 @@ from .auth import HealthHubView, RegistrationView
 from .focus import FocusProgressView, FocusTimerView
 from .hydration import HydrationView
 from .journal import DiaryEntryView, GratitudeJournalView, JournalProfileView
+from .kitchen_table import KitchenTableView
 from .mood import MoodTrackerView
 from .pages import (
     AccountView,
@@ -29,6 +30,7 @@ __all__ = [
     "HealthHubView",
     "HydrationView",
     "JournalProfileView",
+    "KitchenTableView",
     "MoodTrackerView",
     "RoutinesView",
     "RegistrationView",

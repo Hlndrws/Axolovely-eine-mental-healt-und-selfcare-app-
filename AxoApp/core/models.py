@@ -104,6 +104,29 @@ class FocusProgress(models.Model):
 		return f"{self.user}: {self.focused_seconds} Fokus-Sekunden"
 
 
+class KitchenTablePerson(models.Model):
+	AVATAR_CHOICES = [
+		("😊", "😊"), ("🌸", "🌸"), ("🦋", "🦋"), ("🌼", "🌼"),
+		("🍵", "🍵"), ("🌙", "🌙"), ("⭐", "⭐"), ("💗", "💗"),
+		("🍀", "🍀"), ("🐰", "🐰"), ("🦊", "🦊"), ("🐢", "🐢"),
+		("🐼", "🐼"), ("🐙", "🐙"), ("🦥", "🦥"), ("🌻", "🌻"),
+	]
+
+	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="kitchen_table_people")
+	name = models.CharField(max_length=100)
+	avatar = models.CharField(max_length=8, choices=AVATAR_CHOICES, default="😊")
+	appreciation = models.TextField(blank=True)
+	care_idea = models.TextField(blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ["name", "id"]
+
+	def __str__(self):
+		return self.name
+
+
 class GratitudeEntry(models.Model):
 	date = models.DateField(default=timezone.localdate)
 	user = models.ForeignKey(
