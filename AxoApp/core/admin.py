@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from .models import (
+#Verwaltungsoberfläche
+
+from .models import (   #Hier werden die Models importiert (DBs)
 	DiaryEntry,
 	FocusLabel,
 	FocusProgress,
@@ -26,3 +28,6 @@ admin.site.register(KitchenTablePerson)
 admin.site.register(DiaryEntry)
 admin.site.register(Routine)
 admin.site.register(RoutineCompletion)
+
+#In admin.py legst du fest, welche deiner Datenbank-Modelle im Django-Admin-Bereich 
+# sichtbar und verwaltbar sind.

@@ -4,7 +4,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from .models import (
+#Formulare für die Benutzeroberfläche definieren und Eingaben  validieren.
+
+from .models import (   #Hierfür will ich gerne Formulare erstellen
     DiaryEntry,
     FocusLabel,
     GratitudeEntry,
@@ -18,8 +20,8 @@ from .models import (
 User = get_user_model()
 
 
-class RegistrationForm(UserCreationForm):
-    email = forms.EmailField(
+class RegistrationForm(UserCreationForm): #eigenes Registrierungsformular
+    email = forms.EmailField(             #Email hinzufügen
         required=True,
         widget=forms.EmailInput(attrs={"class": "form-control", "autocomplete": "email"}),
     )
@@ -44,7 +46,7 @@ class RegistrationForm(UserCreationForm):
 class HealthDayForm(forms.ModelForm):
     class Meta:
         model = HealthDay
-        fields = ["steps", "step_goal", "went_outside"]
+        fields = ["steps", "step_goal", "went_outside"] #Erstelle mir ein Formular für HealthDay, aber zeige nur diese drei Felder
         labels = {
             "steps": "Schritte heute",
             "step_goal": "Schrittziel",
@@ -55,11 +57,26 @@ class HealthDayForm(forms.ModelForm):
 class KitchenTablePersonForm(forms.ModelForm):
     class Meta:
         model = KitchenTablePerson
-        fields = ["name", "avatar_gender", "avatar_hair_color", "avatar_glasses", "appreciation", "care_idea"]
+        fields = [
+            "name",
+            "avatar_gender",
+            "avatar_hairstyle",
+            "avatar_hair_color",
+            "avatar_skin_color",
+            "avatar_clothing_color",
+            "avatar_background_color",
+            "avatar_glasses",
+            "appreciation",
+            "care_idea",
+        ]
         labels = {
             "name": "Name oder Spitzname",
             "avatar_gender": "Figur",
+            "avatar_hairstyle": "Frisur",
             "avatar_hair_color": "Haarfarbe",
+            "avatar_skin_color": "Hautfarbe",
+            "avatar_clothing_color": "Pullifarbe",
+            "avatar_background_color": "Hintergrundfarbe",
             "avatar_glasses": "Brille",
             "appreciation": "Was schätze ich an dieser Person?",
             "care_idea": "Wie möchte ich diese Freundschaft pflegen?",
@@ -67,7 +84,11 @@ class KitchenTablePersonForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control", "maxlength": 100}),
             "avatar_gender": forms.RadioSelect(attrs={"class": "avatar-gender-radio"}),
+            "avatar_hairstyle": forms.RadioSelect(attrs={"class": "avatar-hairstyle-radio"}),
             "avatar_hair_color": forms.RadioSelect(attrs={"class": "avatar-color-radio"}),
+            "avatar_skin_color": forms.RadioSelect(attrs={"class": "avatar-color-radio"}),
+            "avatar_clothing_color": forms.RadioSelect(attrs={"class": "avatar-color-radio"}),
+            "avatar_background_color": forms.RadioSelect(attrs={"class": "avatar-color-radio"}),
             "avatar_glasses": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "appreciation": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "care_idea": forms.Textarea(attrs={"class": "form-control", "rows": 3}),

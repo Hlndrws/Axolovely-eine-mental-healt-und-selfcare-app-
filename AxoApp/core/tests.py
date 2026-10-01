@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+# automatische tests =>Testautomatisierung
 from .models import (
 	DiaryEntry,
 	FocusLabel,

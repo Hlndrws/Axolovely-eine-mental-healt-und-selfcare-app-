@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+#wichtigste datei => sowas wie Bauplan für die Datenbank
+
 
 class FocusLabel(models.Model):
 	name = models.CharField(max_length=40)
@@ -110,6 +112,13 @@ class KitchenTablePerson(models.Model):
 		("man", "Mann"),
 		("woman", "Frau"),
 	]
+	HAIRSTYLE_CHOICES = [
+		("short", "Kurz"),
+		("long", "Lang"),
+		("curly", "Lockig"),
+		("bun", "Dutt"),
+		("bald", "Glatze"),
+	]
 	HAIR_COLOR_CHOICES = [
 		("#2b2b2b", "Schwarz"),
 		("#6b4226", "Braun"),
@@ -118,11 +127,39 @@ class KitchenTablePerson(models.Model):
 		("#b0b0b0", "Grau"),
 		("#e6a8c8", "Pink"),
 	]
+	SKIN_COLOR_CHOICES = [
+		("#ffe0c2", "Hell"),
+		("#f1c6a0", "Mittelhell"),
+		("#d8a373", "Mittel"),
+		("#a66a44", "Mittel-Dunkel"),
+		("#6b4226", "Dunkel"),
+	]
+	CLOTHING_COLOR_CHOICES = [
+		("#f4c9db", "Rosa"),
+		("#bcd8f1", "Hellblau"),
+		("#c9e4c5", "Mintgrün"),
+		("#f7e1a0", "Gelb"),
+		("#d9c2f0", "Flieder"),
+		("#f2b7a3", "Koralle"),
+	]
+	BACKGROUND_COLOR_CHOICES = [
+		("#ffffff", "Weiß"),
+		("#ffe3ee", "Rosa"),
+		("#e3f2ff", "Blau"),
+		("#eafbe7", "Grün"),
+		("#fff6da", "Gelb"),
+		("#f1e6ff", "Flieder"),
+	]
 
+# Welche Art von daten werden bzw können gespeichert werden
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="kitchen_table_people")
 	name = models.CharField(max_length=100)
 	avatar_gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default="neutral", blank=True)
+	avatar_hairstyle = models.CharField(max_length=10, choices=HAIRSTYLE_CHOICES, default="short", blank=True)
 	avatar_hair_color = models.CharField(max_length=7, choices=HAIR_COLOR_CHOICES, default="#6b4226", blank=True)
+	avatar_skin_color = models.CharField(max_length=7, choices=SKIN_COLOR_CHOICES, default="#ffe0c2", blank=True)
+	avatar_clothing_color = models.CharField(max_length=7, choices=CLOTHING_COLOR_CHOICES, default="#f4c9db", blank=True)
+	avatar_background_color = models.CharField(max_length=7, choices=BACKGROUND_COLOR_CHOICES, default="#ffffff", blank=True)
 	avatar_glasses = models.BooleanField(default=False, blank=True)
 	appreciation = models.TextField(blank=True)
 	care_idea = models.TextField(blank=True)

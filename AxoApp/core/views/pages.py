@@ -17,15 +17,22 @@ class AxolotlThemesView(TemplateView):
     template_name = "themes.html"
 
 
-class AxoloTeaView(TemplateView):
+class AxoloTeaView(TemplateView): #Teeschilder
     template_name = "axolo_tea.html"
     tea_signs = [
-        "Du musst nicht alles heute schaffen.",
-        "Eine Pause ist auch ein produktiver Schritt.",
-        "Du darfst stolz auf kleine Fortschritte sein.",
-        "Atme aus. Du bist genau hier.",
+        "Use fear; don’t let it use you.",
+        "Remember the value of slowing down; constant speed can feed anxiety and wear you down.",
+        "Jede Erfahrung lehrt dich etwas. Deine Reaktion zeigt, ob du es verstanden hast. (Yogi Tea)",
+        "Be proud of who you are.",
         "Sei heute so freundlich zu dir wie zu einem guten Freund.",
-        "Langsam ist auch ein Tempo.",
+        "Langsam ist auch ein Tempo. Jeder kleine Schritt zählt.",
+        "Your potential self is infinite",
+        "Aunt Lucy always said, 'If you're kind and polite, the world will be right. (Paddington Bär)",
+        "Mrs. Brown says that in London everyone is different, and that means anyone can fit in.",
+        "If come from inside you, always right one. (Mr. Miyagi)",
+        "Du bist der, den du dir aussuchst, zu sein (The Iron Giant)",
+        "A real loser is somebody so afraid of not winning that they do not even try" ,
+        "Yesterday is history, tomorrow is a mystery, but today is a gift. That is why it is called the present. (Oogway)" 
     ]
 
     def get_context_data(self, **kwargs):
