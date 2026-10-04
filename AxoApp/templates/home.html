@@ -1,16 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
-
 {% block title %}
     Home · Axolovel
 {% endblock %}
 
-
 {% block content %}
-
 <div class="container py-5">
-
     <div class="text-center">
 
         <h1 class="display-4">
@@ -25,12 +21,33 @@
             Let's begin ♡
         </a>
 
-        <div>
-            <img class="img-fluid mt-4" src="{% static 'pics/heart.png' %}" alt="Axolotl" style="max-width: 320px;">
+        <!-- Der Container enthält jetzt nur noch das eine wechselnde Bild => Platzhalte -->
+        <div id="galerie">
+            <img id="wechsel-bild" class="img-fluid mt-4" 
+                 src="/static/pics/axo3.png" 
+                 alt="Axolotl" 
+                 style="max-width: 300px; width: 100%;">
         </div>
 
+        <script> 
+            // 1. Das Bildelement aus dem HTML greifen
+            const imgElement = document.getElementById('wechsel-bild');
+            
+            // 2. Zustand merken, welches Bild gerade aktiv ist
+            let zeigtBild3 = true;
+
+            // 3. Intervall starten
+            setInterval(() => {
+                if (zeigtBild3) {
+                    imgElement.src = "/static/pics/axo4.png";
+                } else {
+                    imgElement.src = "/static/pics/axo3.png";
+                }
+                // Zustand umkehren
+                zeigtBild3 = !zeigtBild3;
+            }, 1000); 
+        </script>
+
     </div>
-
 </div>
-
 {% endblock %}

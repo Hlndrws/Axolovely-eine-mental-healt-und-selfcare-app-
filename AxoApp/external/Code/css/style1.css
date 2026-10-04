@@ -1,0 +1,216 @@
+/* external/css/style1.css */
+   
+        :root {
+            --axolovel-pink: #f5c4d5;
+            --axolovel-pink-hover: #edafc5;
+            --axolovel-card-pink: #f9d5e1;
+            --axolovel-lavender: #cdb7e6;
+            --axolovel-ink: #3f2933;
+            --font-chewy: "Chewy", cursive;
+            --font-handlee: "Handlee", cursive;
+            --font-montserrat: "Montserrat", sans-serif;
+            --font-nanum-pen: "Nanum Pen Script", cursive;
+            --font-press-start: "Press Start 2P", cursive;
+            --font-shizuru: "Shizuru", cursive;
+            --bs-body-font-family: var(--font-handlee);
+        }
+
+        body {
+            font-family: var(--font-handlee);
+            color: var(--axolovel-ink);
+        }
+
+        h1,
+        h2,
+        h3,
+        .site-logo {
+            font-family: var(--font-handlee);
+            font-weight: 400;
+        }
+
+        .lead {
+            font-family: var(--font-handlee);
+            font-size: 1.35rem;
+        }
+
+        .btn-primary {
+            --bs-btn-color: var(--axolovel-ink);
+            --bs-btn-bg: var(--axolovel-pink);
+            --bs-btn-border-color: var(--axolovel-pink);
+            --bs-btn-hover-color: var(--axolovel-ink);
+            --bs-btn-hover-bg: var(--axolovel-pink-hover);
+            --bs-btn-hover-border-color: var(--axolovel-pink-hover);
+            --bs-btn-active-color: var(--axolovel-ink);
+            --bs-btn-active-bg: var(--axolovel-pink-hover);
+            --bs-btn-active-border-color: var(--axolovel-pink-hover);
+            --bs-btn-focus-shadow-rgb: 237, 175, 197;
+        }
+
+        .btn-begin {
+            padding: 0.65rem 1.5rem;
+            font-family: var(--font-handlee);
+            font-size: 1.3rem;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            font-family: var(--font-handlee);
+        }
+
+        .site-header {
+            position: relative;
+            z-index: 10;
+            background: var(--axolovel-pink);
+            color: var(--axolovel-ink);
+        }
+
+        .site-header-inner {
+        display: grid !important;
+        /* 3 Spalten: Links die Bildbreite (80px), Mitte flexibel für den Text, Rechts Platz fürs Menü (min. 80px) */
+        grid-template-columns: 80px 1fr 80px; 
+        align-items: center;
+        min-height: 100px;
+        }
+
+        .site-logo {
+            display: contents; /* Löst die umschließende Box auf, damit Bild und Text eigenständig im Grid sitzen */
+        }
+
+        /* Das Bild wird in Spalte 1 (ganz links) verankert */
+        .site-logo img {
+            grid-column: 1;
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        /* Der Text wird in Spalte 2 (exakt in die Bildschirm-Mitte) gesetzt */
+        .site-logo span {
+            grid-column: 2;
+            text-align: center;
+            justify-self: center;
+            color: var(--axolovel-ink) !important;
+            text-decoration: none !important;
+            font-size: 2.0rem;
+        }
+
+        /* Das Menü-Icon wandert in Spalte 3 (ganz rechts) */
+        .site-menu {
+            grid-column: 3;
+            justify-self: end;
+        }
+
+        .site-menu {
+            grid-column: 3; /* Schiebt das Menü-Icon in die rechte Spalte */
+            justify-self: end; /* Richtet das Icon rechtsbündig aus */
+        }
+
+        .menu-toggle {
+            display: grid;
+            place-content: center;
+            gap: 5px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(63, 41, 51, 0.28);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .menu-toggle::-webkit-details-marker {
+            display: none;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--axolovel-ink);
+        }
+
+        .menu-toggle:hover,
+        .site-menu[open] .menu-toggle {
+            background: var(--axolovel-pink-hover);
+        }
+
+        .menu-panel {
+            position: absolute;
+            top: calc(100% + 0.6rem);
+            right: 0;
+            min-width: 220px;
+            padding: 0.45rem;
+            border: 1px solid #ead4dc;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgba(63, 41, 51, 0.14);
+        }
+
+        .menu-panel a {
+            display: block;
+            padding: 0.7rem 0.8rem;
+            border-radius: 4px;
+            color: var(--axolovel-ink);
+            text-decoration: none;
+        }
+
+        .menu-panel a:hover,
+        .menu-panel a:focus-visible {
+            background: var(--axolovel-pink);
+        }
+
+        .message-close {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            margin: -0.25rem -0.25rem 0 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: inherit;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .message-close:hover,
+        .message-close:focus-visible {
+            background: rgba(63, 41, 51, 0.1);
+        }
+
+        .back-arrow {
+            display: inline-grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            border: 1px solid #e5c8d4;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--axolovel-ink);
+            font-size: 1.55rem;
+            line-height: 1;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(63, 41, 51, 0.1);
+            transition: background-color 140ms ease, transform 140ms ease;
+        }
+
+        .back-arrow:hover,
+        .back-arrow:focus-visible {
+            transform: translateX(-2px);
+            background: var(--axolovel-pink);
+            color: var(--axolovel-ink);
+        }
+
+        .back-arrow-floating {
+            position: fixed;
+            z-index: 20;
+            top: 1rem;
+            left: 1rem;
+        }
+         .klickbar {
+            cursor: pointer;
+            max-width: 100%;
+            height: auto;
+        }
+    
