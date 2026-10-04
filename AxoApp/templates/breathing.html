@@ -149,8 +149,8 @@
     {% url 'axolo_tea' as back_url %}
     {% include "partials/back_arrow.html" with back_url=back_url back_label="Zurück zu Axolo-Tea" %}
     <p class="text-uppercase text-secondary mb-1">Axolo-Tea</p>
-    <h1 class="display-5">Durchatmen</h1>
-    <p class="lead mb-4">Wähle eine Übung, die gerade zu dir passt. Du kannst jederzeit normal weiteratmen.</p>
+    <h1 class="display-5">Durchatmen - kurz innehalten, für weniger Stress und mehr self awareness</h1>
+    <p class="lead mb-4">Wähle eine Übung, die gerade zu dir passt ode die dir gerade gut tun würde.</p>
 
     <section aria-labelledby="exercise-picker-title">
         <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
@@ -166,17 +166,17 @@
                     <span class="text-uppercase small text-secondary mb-2">Übung {{ forloop.counter }}</span>
                     <strong class="h3">{{ exercise.name }}</strong>
                     <span class="mb-2">{{ exercise.summary }}</span>
-                    <span class="small fw-semibold">Wann könnte sie passen?</span>
+                    <span class="small fw-semibold">Passt diese Übung zu dir?</span>
                     <span class="small text-secondary mb-3">{{ exercise.for_when }}</span>
                     <span class="btn btn-primary mt-auto">Übung auswählen</span>
                 </a>
             {% endfor %}
         </div>
-        <p class="small text-secondary mt-2">Wenn dir schwindlig oder unwohl wird, lass die Übung aus und atme normal weiter.</p>
+        <p class="small text-secondary mt-2">Wenn dir schwindelig oder unwohl wird, lass die Übung aus und atme normal weiter.</p>
     </section>
 </main>
 <script>
-    const exerciseCarousel = document.getElementById("exercise-carousel");
+    const exerciseCarousel = document.getElementById("exercise-carousel");  //hier kann man die Elemente/Atemübungen durchklicken
     document.querySelectorAll("[data-exercise-scroll]").forEach((button) => {
         button.addEventListener("click", () => {
             const direction = button.dataset.exerciseScroll === "right" ? 1 : -1;

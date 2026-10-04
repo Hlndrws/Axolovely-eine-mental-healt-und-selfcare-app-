@@ -23,19 +23,19 @@ from .models import (
 
 class MoodTrackerTests(TestCase):
 	def setUp(self):
-		self.user = get_user_model().objects.create_user(
+		self.user = get_user_model().objects.create_user( #Testuser anlegen
 			username="test-axolovel",
 			email="test@example.com",
 			password="Valid-test-password-123",
 		)
-		self.client.force_login(self.user)
+		self.client.force_login(self.user)				#Login mit Testuser testen
 
 	def test_dashboard_shows_calendar_and_tracker_card(self):
 		response = self.client.get(reverse("base_page"))
 
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 200) # Testet quasi ob der response code gleich 200 ist
 		self.assertContains(response, "Mood Board")
-		self.assertContains(response, reverse("mood_tracker"))
+		self.assertContains(response, reverse("mood_tracker")) # reserve erzeugt passende URL aus Namen
 		self.assertContains(response, "Axolo-Tea")
 		self.assertContains(response, 'btn btn-primary module-cta mt-auto">Auswählen</span>')
 		self.assertContains(response, "Gratitude Journal")

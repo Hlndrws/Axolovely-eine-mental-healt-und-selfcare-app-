@@ -31,7 +31,7 @@
                     <article class="card h-100 shadow-sm" style="background: var(--axolovel-card-pink);">
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="kitchen-avatar" aria-hidden="true">{% include "partials/avatar_icon.html" with gender=person.avatar_gender hair_color=person.avatar_hair_color glasses=person.avatar_glasses size=48 %}</span>
+                                <span class="kitchen-avatar" aria-hidden="true">{% include "partials/avatar_icon.html" with gender=person.avatar_gender hairstyle=person.avatar_hairstyle hair_color=person.avatar_hair_color skin_color=person.avatar_skin_color clothing_color=person.avatar_clothing_color background_color=person.avatar_background_color glasses=person.avatar_glasses size=48 %}</span>
                                 <h3 class="h3 mb-0">{{ person.name }}</h3>
                             </div>
                             {% if person.appreciation %}
@@ -52,7 +52,11 @@
                             <div class="d-none" id="person-data-{{ person.id }}"
                                  data-name="{{ person.name }}"
                                  data-avatar-gender="{{ person.avatar_gender }}"
+                                 data-avatar-hairstyle="{{ person.avatar_hairstyle }}"
                                  data-avatar-hair-color="{{ person.avatar_hair_color }}"
+                                 data-avatar-skin-color="{{ person.avatar_skin_color }}"
+                                 data-avatar-clothing-color="{{ person.avatar_clothing_color }}"
+                                 data-avatar-background-color="{{ person.avatar_background_color }}"
                                  data-avatar-glasses="{{ person.avatar_glasses|yesno:'true,false' }}"
                                  data-appreciation="{{ person.appreciation }}"
                                  data-care-idea="{{ person.care_idea }}"></div>
@@ -82,7 +86,7 @@
                     <label class="form-label d-block">Aussehen</label>
                     <div class="d-flex flex-wrap align-items-start gap-4">
                         <div class="avatar-preview flex-shrink-0">
-                            {% include "partials/avatar_icon.html" with gender=form.avatar_gender.value hair_color=form.avatar_hair_color.value glasses=form.avatar_glasses.value size=72 %}
+                            {% include "partials/avatar_icon.html" with gender=form.avatar_gender.value hairstyle=form.avatar_hairstyle.value hair_color=form.avatar_hair_color.value skin_color=form.avatar_skin_color.value clothing_color=form.avatar_clothing_color.value background_color=form.avatar_background_color.value glasses=form.avatar_glasses.value size=72 %}
                         </div>
                         <div class="flex-grow-1">
                             <div class="mb-2">
@@ -97,9 +101,53 @@
                                 </div>
                             </div>
                             <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Frisur</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_hairstyle %}
+                                        <label class="avatar-option-pill">
+                                            {{ radio.tag }}
+                                            <span>{{ radio.choice_label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-2">
                                 <span class="small text-secondary d-block mb-1">Haarfarbe</span>
                                 <div class="d-flex gap-2 flex-wrap">
                                     {% for radio in form.avatar_hair_color %}
+                                        <label class="avatar-choice">
+                                            {{ radio.tag }}
+                                            <span class="avatar-swatch" style="background: {{ radio.data.value }};"></span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Hautfarbe</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_skin_color %}
+                                        <label class="avatar-choice">
+                                            {{ radio.tag }}
+                                            <span class="avatar-swatch" style="background: {{ radio.data.value }};"></span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Pullifarbe</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_clothing_color %}
+                                        <label class="avatar-choice">
+                                            {{ radio.tag }}
+                                            <span class="avatar-swatch" style="background: {{ radio.data.value }};"></span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-secondary d-block mb-1">Hintergrundfarbe</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% for radio in form.avatar_background_color %}
                                         <label class="avatar-choice">
                                             {{ radio.tag }}
                                             <span class="avatar-swatch" style="background: {{ radio.data.value }};"></span>
@@ -202,9 +250,25 @@
             if (genderInput) {
                 genderInput.checked = true;
             }
+            const hairstyleInput = document.querySelector(`input[name="avatar_hairstyle"][value="${data.dataset.avatarHairstyle}"]`);
+            if (hairstyleInput) {
+                hairstyleInput.checked = true;
+            }
             const hairInput = document.querySelector(`input[name="avatar_hair_color"][value="${data.dataset.avatarHairColor}"]`);
             if (hairInput) {
                 hairInput.checked = true;
+            }
+            const skinInput = document.querySelector(`input[name="avatar_skin_color"][value="${data.dataset.avatarSkinColor}"]`);
+            if (skinInput) {
+                skinInput.checked = true;
+            }
+            const clothingInput = document.querySelector(`input[name="avatar_clothing_color"][value="${data.dataset.avatarClothingColor}"]`);
+            if (clothingInput) {
+                clothingInput.checked = true;
+            }
+            const backgroundInput = document.querySelector(`input[name="avatar_background_color"][value="${data.dataset.avatarBackgroundColor}"]`);
+            if (backgroundInput) {
+                backgroundInput.checked = true;
             }
             document.getElementById("id_avatar_glasses").checked = data.dataset.avatarGlasses === "true";
             document.getElementById("id_appreciation").value = data.dataset.appreciation;
@@ -217,23 +281,48 @@
 
     function refreshAvatarPreview() {
         const gender = document.querySelector('input[name="avatar_gender"]:checked')?.value || "neutral";
+        const hairstyle = document.querySelector('input[name="avatar_hairstyle"]:checked')?.value || "short";
         const hairColor = document.querySelector('input[name="avatar_hair_color"]:checked')?.value || "#6b4226";
+        const skinColor = document.querySelector('input[name="avatar_skin_color"]:checked')?.value || "#ffe0c2";
+        const clothingColor = document.querySelector('input[name="avatar_clothing_color"]:checked')?.value || "#f4c9db";
+        const backgroundColor = document.querySelector('input[name="avatar_background_color"]:checked')?.value || "#ffffff";
         const glasses = document.getElementById("id_avatar_glasses")?.checked || false;
+
+        document.querySelectorAll(".avatar-preview .avatar-body").forEach((bodyPath) => {
+            bodyPath.classList.add("d-none");
+            bodyPath.style.fill = clothingColor;
+        });
+        const activeBody = document.querySelector(`.avatar-preview .avatar-body-${gender}`);
+        if (activeBody) {
+            activeBody.classList.remove("d-none");
+        }
+
         document.querySelectorAll(".avatar-preview .avatar-hair").forEach((hairPath) => {
             hairPath.classList.add("d-none");
             hairPath.style.fill = hairColor;
         });
-        const activeHair = document.querySelector(`.avatar-preview .avatar-hair-${gender}`);
+        const activeHair = document.querySelector(`.avatar-preview .avatar-hair-${hairstyle}`);
         if (activeHair) {
             activeHair.classList.remove("d-none");
         }
+
+        const skinEl = document.querySelector(".avatar-preview .avatar-skin");
+        if (skinEl) {
+            skinEl.style.fill = skinColor;
+        }
+
+        const backgroundEl = document.querySelector(".avatar-preview .avatar-background");
+        if (backgroundEl) {
+            backgroundEl.style.fill = backgroundColor;
+        }
+
         const glassesEl = document.querySelector(".avatar-preview .avatar-glasses");
         if (glassesEl) {
             glassesEl.classList.toggle("d-none", !glasses);
         }
     }
 
-    document.querySelectorAll('input[name="avatar_gender"], input[name="avatar_hair_color"]').forEach((input) => {
+    document.querySelectorAll('input[name="avatar_gender"], input[name="avatar_hairstyle"], input[name="avatar_hair_color"], input[name="avatar_skin_color"], input[name="avatar_clothing_color"], input[name="avatar_background_color"]').forEach((input) => {
         input.addEventListener("change", refreshAvatarPreview);
     });
     document.getElementById("id_avatar_glasses")?.addEventListener("change", refreshAvatarPreview);

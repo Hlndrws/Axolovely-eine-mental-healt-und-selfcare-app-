@@ -8,9 +8,9 @@
     {% include "partials/back_arrow.html" with back_url=back_url back_label="Zur Startseite" %}
     <p class="text-uppercase text-secondary mt-4 mb-1">Willkommen zurück</p>
     <h1 class="display-5">Anmelden</h1>
-    <p class="lead mb-4">Melde dich an, um deine persönlichen Einträge zu öffnen.</p>
+    <p class="lead mb-4">Melde dich an, um deinen eigenen Safe Space zu öffnen.</p>
 
-    {% if form.errors %}<div class="alert alert-danger" role="alert">Benutzername oder Passwort stimmt nicht.</div>{% endif %}
+    {% if form.errors %}<div class="alert alert-danger" role="alert">Ooops...Benutzername oder Passwort stimmt nicht.</div>{% endif %}
     <form method="post">
         {% csrf_token %}
         <div class="mb-3">

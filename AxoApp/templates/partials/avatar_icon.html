@@ -1,9 +1,22 @@
 <svg class="avatar-icon" width="{{ size|default:44 }}" height="{{ size|default:44 }}" viewBox="0 0 100 100" role="img" aria-label="Avatar">
-    <path d="M20,100 C20,74 30,60 50,60 C70,60 80,74 80,100 Z" fill="#f4c9db"></path>
-    <circle cx="50" cy="38" r="20" fill="#ffe0c2"></circle>
-    <path class="avatar-hair avatar-hair-neutral{% if gender != 'neutral' %} d-none{% endif %}" style="fill: {{ hair_color }};" d="M33,26 C33,16 67,16 67,26 C67,20 60,17 50,17 C40,17 33,20 33,26 Z"></path>
-    <path class="avatar-hair avatar-hair-man{% if gender != 'man' %} d-none{% endif %}" style="fill: {{ hair_color }};" d="M31,29 C31,15 69,15 69,29 C69,21 61,18 50,18 C39,18 31,21 31,29 Z"></path>
-    <path class="avatar-hair avatar-hair-woman{% if gender != 'woman' %} d-none{% endif %}" style="fill: {{ hair_color }};" d="M28,18 C28,9 72,9 72,18 L75,54 C75,60 68,60 68,52 L65,24 C59,17 41,17 35,24 L32,52 C32,60 25,60 25,54 Z"></path>
+    <circle class="avatar-background" cx="50" cy="50" r="50" style="fill: {{ background_color }};"></circle>
+    <path class="avatar-body avatar-body-neutral{% if gender != 'neutral' %} d-none{% endif %}" style="fill: {{ clothing_color }};" d="M22,100 C22,76 32,63 50,63 C68,63 78,76 78,100 Z"></path>
+    <path class="avatar-body avatar-body-man{% if gender != 'man' %} d-none{% endif %}" style="fill: {{ clothing_color }};" d="M18,100 C18,74 30,60 50,60 C70,60 82,74 82,100 Z"></path>
+    <path class="avatar-body avatar-body-woman{% if gender != 'woman' %} d-none{% endif %}" style="fill: {{ clothing_color }};" d="M24,100 C24,78 34,66 50,66 C66,66 76,78 76,100 Z"></path>
+    <circle class="avatar-skin" cx="50" cy="38" r="20" style="fill: {{ skin_color }};"></circle>
+    <path class="avatar-hair avatar-hair-short{% if hairstyle != 'short' %} d-none{% endif %}" style="fill: {{ hair_color }};" d="M31,29 C31,15 69,15 69,29 C69,21 61,18 50,18 C39,18 31,21 31,29 Z"></path>
+    <path class="avatar-hair avatar-hair-long{% if hairstyle != 'long' %} d-none{% endif %}" style="fill: {{ hair_color }};" d="M28,18 C28,9 72,9 72,18 L75,54 C75,60 68,60 68,52 L65,24 C59,17 41,17 35,24 L32,52 C32,60 25,60 25,54 Z"></path>
+    <g class="avatar-hair avatar-hair-curly{% if hairstyle != 'curly' %} d-none{% endif %}" style="fill: {{ hair_color }};">
+        <circle cx="34" cy="24" r="8"></circle>
+        <circle cx="46" cy="15" r="9"></circle>
+        <circle cx="58" cy="15" r="9"></circle>
+        <circle cx="68" cy="24" r="8"></circle>
+        <circle cx="50" cy="13" r="8"></circle>
+    </g>
+    <g class="avatar-hair avatar-hair-bun{% if hairstyle != 'bun' %} d-none{% endif %}" style="fill: {{ hair_color }};">
+        <path d="M33,27 C33,17 67,17 67,27 C67,21 60,19 50,19 C40,19 33,21 33,27 Z"></path>
+        <circle cx="50" cy="13" r="7"></circle>
+    </g>
     <g class="avatar-glasses{% if not glasses %} d-none{% endif %}">
         <circle cx="41" cy="39" r="7.5" fill="none" stroke="#4a4a4a" stroke-width="3"></circle>
         <circle cx="59" cy="39" r="7.5" fill="none" stroke="#4a4a4a" stroke-width="3"></circle>
