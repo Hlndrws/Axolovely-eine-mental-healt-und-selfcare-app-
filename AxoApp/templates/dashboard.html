@@ -279,9 +279,11 @@
         </div>
         <div class="widget-track" id="widget-track" tabindex="0" aria-label="Schnellzugriff-Widgets">
             <a class="round-widget" href="{% url 'mood_tracker' %}">
-                <span class="round-widget-icon" aria-hidden="true">♡</span>
+                <!-- Ersetzt das alte Herz-Icon durch dein Bild -->
+                <img src="{% static 'external/pics/mood_heart.png' %}" class="round-widget-icon" alt="Mood" aria-hidden="true">
                 <span class="small">Mood</span>
             </a>
+
             <a class="round-widget" href="{% url 'axolo_tea' %}">
                 <span class="round-widget-icon" aria-hidden="true">◌</span>
                 <span class="small">Axolo-Tea</span>
